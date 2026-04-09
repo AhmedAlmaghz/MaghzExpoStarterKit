@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.expotemplate.app",
+      "bundleIdentifier": "com.maghz-expo-starter-kit.app",
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to take photos.",
         "NSPhotoLibraryUsageDescription": "This app needs photo library access to select photos."
@@ -28,9 +28,10 @@
       },
       "package": "com.maghz-expo-starter-kit.app",
       "permissions": [
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "web": {
@@ -59,7 +60,11 @@
     "extra": {
       "router": {
         "origin": false
+      },
+      "eas": {
+        "projectId": "82470584-1497-45d5-a488-d3613383bbf1"
       }
-    }
+    },
+    "owner": "maghzai"
   }
 }

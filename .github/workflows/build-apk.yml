@@ -42,11 +42,11 @@ jobs:
       - name: 🏗 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
 
       - name: 🏗 Setup EAS CLI
-        uses: expo/setup-eas@v1
+        run: npm install -g eas-cli
 
       - name: 📦 Install dependencies
         run: npm ci
@@ -75,7 +75,7 @@ jobs:
         with:
           name: app-release-apk
           path: app-release.apk
-          retention-days: 5
+          retention-days: 90
 
       - name: 🚀 Create GitHub Release with APK
         uses: softprops/action-gh-release@v2
