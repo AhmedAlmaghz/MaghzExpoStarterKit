@@ -138,7 +138,9 @@ class NotificationService {
         try {
             const id = await notif.scheduleNotificationAsync({
                 content: { title, body, data },
-                trigger: { type: 'timeInterval' as const, seconds },
+                // Type assertion needed: dynamic import can't resolve SchedulableTriggerInputTypes enum,
+                // but the runtime value "timeInterval" is correct per expo-notifications spec.
+                trigger: { type: 'timeInterval', seconds } as Parameters<typeof notif.scheduleNotificationAsync>[0]['trigger'],
             });
             return id;
         } catch (error) {

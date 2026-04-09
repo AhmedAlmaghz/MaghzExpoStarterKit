@@ -41,8 +41,11 @@ export function useNotifications(userId?: string) {
      * Listen for push notifications
      */
     useEffect(() => {
-        const receivedSubscription = notificationService.addNotificationReceivedListener(
-            (notification) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let subscription: any = null;
+
+        notificationService
+            .addNotificationReceivedListener((notification: any) => {
                 const item: NotificationItem = {
                     id: notification.request.identifier,
                     userId: userId || '',
@@ -55,11 +58,13 @@ export function useNotifications(userId?: string) {
                     createdAt: new Date().toISOString(),
                 };
                 addNotification(item);
-            }
-        );
+            })
+            .then((sub: any) => {
+                subscription = sub;
+            });
 
         return () => {
-            receivedSubscription.remove();
+            subscription?.remove?.();
         };
     }, [userId, addNotification]);
 

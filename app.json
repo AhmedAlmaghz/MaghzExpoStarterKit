@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maghz Expo Starter Kit",
     "slug": "maghz-expo-starter-kit",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -61,9 +61,10 @@
       "router": {
         "origin": false
       },
-      "eas": {
-        "projectId": "82470584-1497-45d5-a488-d3613383bbf1"
-      }
+      "appDirectory": "./src/app"
+    },
+    "eas": {
+      "projectId": "82470584-1497-45d5-a488-d3613383bbf1"
     },
     "owner": "maghzai"
   }

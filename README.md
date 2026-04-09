@@ -91,17 +91,20 @@ src/
 ### Installation
 
 1. **Clone the repository:**
+
    ```bash
    git clone <repo-url>
    cd ExpoTempVS
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Configure environment:**
+
    ```bash
    cp .env.example .env
    # Edit .env with your Supabase credentials
@@ -114,19 +117,20 @@ src/
 
 ## 🔧 Tech Stack
 
-| Technology | Version | Purpose |
-|-----------|---------|---------|
-| React Native + Expo | 51.0+ | Core framework |
-| TailwindCSS 4 | 4.0+ | Dynamic styling |
-| Supabase | Latest | Backend (Auth, DB, Real-time) |
-| Drizzle ORM | 0.30+ | Type-safe database |
-| Zod | 3.22+ | Schema validation |
-| Zustand | 4.4+ | State management |
-| Expo Notifications | Latest | Push notifications |
+| Technology          | Version | Purpose                       |
+| ------------------- | ------- | ----------------------------- |
+| React Native + Expo | 51.0+   | Core framework                |
+| TailwindCSS 4       | 4.0+    | Dynamic styling               |
+| Supabase            | Latest  | Backend (Auth, DB, Real-time) |
+| Drizzle ORM         | 0.30+   | Type-safe database            |
+| Zod                 | 3.22+   | Schema validation             |
+| Zustand             | 4.4+    | State management              |
+| Expo Notifications  | Latest  | Push notifications            |
 
 ## 📱 Features
 
 ### 1. Authentication & Permissions
+
 - Email/password login with Zod validation
 - Google & Apple OAuth support
 - Session management with refresh tokens
@@ -134,47 +138,55 @@ src/
 - Brute force protection & rate limiting
 
 ### 2. Theme System
+
 - Light/Dark/System mode
 - Dynamic color palette
 - Persistent theme preference
 - Smooth transitions
 
 ### 3. Internationalization (i18n)
+
 - English & Arabic support
 - RTL/LTR automatic switching
 - Dynamic language loading
 - Persistent language preference
 
 ### 4. User Profile
+
 - View/edit profile information
 - Avatar upload with compression
 - Email & phone verification
 - Activity log
 
 ### 5. App Settings
+
 - Appearance (theme, language)
 - Notification preferences
 - Privacy settings
 - Advanced settings (cache, reset)
 
 ### 6. Admin Dashboard
+
 - User management (activate/deactivate/suspend)
 - Analytics & performance metrics
 - Content management
 - Audit logs
 
 ### 7. User Dashboard
+
 - Quick stats & activity overview
 - Alert notifications
 - Task management
 
 ### 8. Notifications
+
 - In-app notifications
 - FCM push notifications
 - Notification center with history
 - Scheduled notifications
 
 ### 9. Shared Components
+
 - Header with user info & search
 - Footer with links
 - Side menu with role-based navigation
@@ -195,6 +207,127 @@ src/
 3. Run the SQL migrations for the database schema
 4. Update `.env` with your project URL and anon key
 
+---
+
+### 🗄️ Database Migration
+
+The database schema is managed using Drizzle ORM with SQL migrations stored in `migrations/`.
+
+#### Running Migrations
+
+**Option 1: Supabase Dashboard (Recommended for Beginners)**
+
+1. Go to your Supabase project dashboard
+2. Navigate to **SQL Editor**
+3. Copy the contents of `migrations/001_initial_schema.sql`
+4. Paste into the SQL Editor
+5. Click **Run** to execute
+
+**Option 2: Supabase CLI**
+
+```bash
+# Install Supabase CLI
+npm install -g supabase
+
+# Login to Supabase
+npx supabase login
+
+# Link your project
+npx supabase link --project-ref YOUR_PROJECT_REF
+
+# Push the schema
+npx supabase db push
+```
+
+**Option 3: Drizzle Kit**
+
+```bash
+# Update drizzle.config.ts with your Supabase connection string
+# Then run:
+npx drizzle-kit push
+```
+
+#### Migration Contents
+
+The `001_initial_schema.sql` migration includes:
+
+| Component        | Description                                                                                                                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Extensions**   | UUID generation                                                                                                                                |
+| **Tables**       | 11 tables (users, profiles, sessions, notifications, settings, audit_logs, roles, permissions, role_permissions, user_roles, analytics_events) |
+| **Indexes**      | 11 performance indexes                                                                                                                         |
+| **RLS Policies** | 27 row-level security policies                                                                                                                 |
+| **Triggers**     | 3 auto-update triggers                                                                                                                         |
+| **Seed Data**    | 3 roles, 12 permissions with mappings                                                                                                          |
+
+---
+
+### 🪣 Storage Buckets Setup
+
+Storage buckets must be created manually in Supabase Dashboard.
+
+#### Creating Buckets
+
+1. Go to your Supabase project dashboard
+2. Navigate to **Storage** in the left sidebar
+3. Click **Create a new bucket**
+
+Create the following buckets:
+
+| Bucket Name | Public | Purpose                |
+| ----------- | ------ | ---------------------- |
+| `avatars`   | ✅ Yes | User profile pictures  |
+| `documents` | ❌ No  | Private user documents |
+| `assets`    | ✅ Yes | Application assets     |
+
+#### Configuring Storage Policies
+
+For each bucket, add these RLS policies:
+
+**For `avatars` bucket:**
+
+- `avatars_select`: Allow authenticated users to view avatars
+- `avatars_upload`: Allow authenticated users to upload
+- `avatars_update`: Allow users to update their own files
+- `avatars_delete`: Allow users to delete their own files
+
+**For `documents` bucket:**
+
+- `documents_select`: Allow authenticated users to view
+- `documents_upload`: Allow authenticated users to upload
+- `documents_update`: Allow users to update their own files
+- `documents_delete`: Allow users to delete their own files
+
+**For `assets` bucket:**
+
+- `assets_select`: Public read access
+- `assets_upload`: Allow authenticated users to upload
+
+**Admin Policy (all buckets):**
+
+- `storage_admin`: Allow admins to manage all files
+
+#### Storage Policy Examples
+
+```sql
+-- Avatars: Users manage their own files
+CREATE POLICY "avatars_select" ON storage.objects FOR SELECT
+USING (bucket_id = 'avatars' AND auth.role() = 'authenticated');
+
+CREATE POLICY "avatars_insert" ON storage.objects FOR INSERT
+WITH CHECK (bucket_id = 'avatars' AND auth.role() = 'authenticated');
+
+CREATE POLICY "avatars_update" ON storage.objects FOR UPDATE
+USING (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE POLICY "avatars_delete" ON storage.objects FOR DELETE
+USING (bucket_id = 'avatars' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+-- Admin policy
+CREATE POLICY "storage_admin" ON storage.objects FOR ALL
+USING (auth.role() = 'authenticated');
+```
+
 ## 📝 Adding a New Language
 
 1. Create a new JSON file in `src/i18n/locales/` (e.g., `fr.json`)
@@ -212,6 +345,7 @@ src/
 ## 📦 Key Modules Usage
 
 ### Auth Hook
+
 ```typescript
 import { useAuth } from '@/auth/hooks/useAuth';
 
@@ -222,6 +356,7 @@ function MyComponent() {
 ```
 
 ### Permission Hook
+
 ```typescript
 import { usePermission } from '@/auth/hooks/usePermission';
 
@@ -233,6 +368,7 @@ function AdminPanel() {
 ```
 
 ### Theme Hook
+
 ```typescript
 import { useTheme } from '@/theme/hooks/useTheme';
 
@@ -243,6 +379,7 @@ function MyComponent() {
 ```
 
 ### Translation Hook
+
 ```typescript
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 
@@ -253,6 +390,7 @@ function MyComponent() {
 ```
 
 ### Notifications Hook
+
 ```typescript
 import { useNotifications } from '@/notifications/hooks/useNotifications';
 

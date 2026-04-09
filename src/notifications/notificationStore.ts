@@ -40,9 +40,9 @@ export const useNotificationStore = create<{
     fcmToken: string | null;
     settings: NotificationSettings;
 
-    fetchNotifications: (userId: string) => Promise<void>;
+    fetchNotifications: (userId?: string) => Promise<void>;
     markAsRead: (id: string) => Promise<void>;
-    markAllAsRead: (userId: string) => Promise<void>;
+    markAllAsRead: (userId?: string) => Promise<void>;
     deleteNotification: (id: string) => Promise<void>;
     registerForPushNotifications: () => Promise<void>;
     updateSettings: (settings: Partial<NotificationSettings>) => Promise<void>;
@@ -56,11 +56,11 @@ export const useNotificationStore = create<{
     fcmToken: null,
     settings: defaultSettings,
 
-    fetchNotifications: async (userId: string) => {
+    fetchNotifications: async (_userId?: string) => {
         set({ isLoading: true, error: null });
         try {
-            const { notifications, total } = await notificationService.fetchNotifications(userId);
-            const unreadCount = notifications.filter((n) => !n.read).length;
+            const notifications = await notificationService.fetchNotifications();
+            const unreadCount = notifications.filter((n: NotificationItem) => !n.read).length;
             set({ notifications, unreadCount, isLoading: false });
         } catch (error) {
             set({
@@ -83,9 +83,9 @@ export const useNotificationStore = create<{
         }
     },
 
-    markAllAsRead: async (userId: string) => {
+    markAllAsRead: async (_userId?: string) => {
         try {
-            await notificationService.markAllAsRead(userId);
+            await notificationService.markAllAsRead();
             const notifications = get().notifications.map((n) => ({
                 ...n,
                 read: true,
@@ -110,8 +110,8 @@ export const useNotificationStore = create<{
 
     registerForPushNotifications: async () => {
         try {
-            const token = await notificationService.registerForPushNotifications();
-            set({ fcmToken: token });
+            const tokenData = await notificationService.registerForPushNotifications();
+            set({ fcmToken: tokenData?.token ?? null });
         } catch (error) {
             set({ error: error instanceof Error ? error.message : 'Failed to register for push notifications' });
         }
