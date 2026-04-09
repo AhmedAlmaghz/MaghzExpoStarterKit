@@ -1,0 +1,11 @@
+/**
+ * Global CSS - NativeWind v4 / TailwindCSS 4
+ *
+ * This is the entry point for all global styles.
+ * NativeWind v4 uses TailwindCSS 4's CSS-first configuration.
+ *
+ * @see https://www.nativewind.dev/v4/overview
+ */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

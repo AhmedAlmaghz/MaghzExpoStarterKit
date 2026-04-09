@@ -1,0 +1,88 @@
+name: Build Android APK
+
+# ─────────────────────────────────────────────────────────────────────────────
+# This workflow builds an Android APK every time a new tag (v*) is pushed.
+# The APK is uploaded as a GitHub Actions artifact AND attached to a
+# GitHub Release so you can download it directly to your phone.
+#
+# Prerequisites (one-time setup):
+#   1. Create an Expo account at https://expo.dev
+#   2. Run `eas login` locally and then `eas build:configure`
+#   3. Generate an access token at https://expo.dev/settings/access-tokens
+#   4. Add the token as a repository secret named EXPO_TOKEN:
+#      GitHub → repo → Settings → Secrets and variables → Actions → New secret
+#
+# Usage:
+#   git tag v0.1.0
+#   git push origin v0.1.0
+#
+# The APK will appear under:
+#   • Actions → <run> → Artifacts (downloadable for 90 days)
+#   • Releases → v0.1.0 (permanent download link)
+# ─────────────────────────────────────────────────────────────────────────────
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: 🔨 Build APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🏗 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 🏗 Setup EAS CLI
+        uses: expo/setup-eas@v1
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔨 Build APK on EAS
+        run: eas build --platform android --profile preview --non-interactive --wait
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📥 Download APK from EAS
+        run: |
+          BUILD_JSON=$(eas build:list --platform android --json --limit 1)
+          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
+          if [ -z "$BUILD_URL" ] || [ "$BUILD_URL" = "null" ]; then
+            echo "❌ Could not retrieve build URL"
+            exit 1
+          fi
+          echo "⬇️  Downloading APK from: $BUILD_URL"
+          curl -L -o app-release.apk "$BUILD_URL"
+          echo "✅ APK downloaded successfully ($(du -h app-release.apk | cut -f1))"
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: 📤 Upload APK as GitHub artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app-release.apk
+          retention-days: 5
+
+      - name: 🚀 Create GitHub Release with APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: app-release.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
