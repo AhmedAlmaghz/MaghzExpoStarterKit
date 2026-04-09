@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "babel-preset-expo": "^55.0.16",
     "drizzle-kit": "^0.31.10",
     "eslint": "^10.2.0",
     "prettier": "^3.8.1",
