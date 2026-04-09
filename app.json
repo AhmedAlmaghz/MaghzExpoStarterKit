@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.maghz-expo-starter-kit.app",
+      "bundleIdentifier": "com.maghz.expotemplate.app",
       "infoPlist": {
         "NSCameraUsageDescription": "This app needs camera access to take photos.",
         "NSPhotoLibraryUsageDescription": "This app needs photo library access to select photos."
@@ -26,7 +26,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#3b82f6"
       },
-      "package": "com.maghz-expo-starter-kit.app",
+      "package": "com.maghz.expotemplate.app",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
