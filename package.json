@@ -1,6 +1,6 @@
 {
   "name": "maghz-expo-starter-kit",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",

@@ -4,6 +4,10 @@
  * Provides encrypted storage for sensitive data using Expo SecureStore
  * with fallback to AsyncStorage for non-sensitive data.
  *
+ * All AsyncStorage calls are wrapped in try/catch to prevent crashes
+ * when the native module is unavailable (e.g. Expo Go first launch,
+ * environments without the native module linked).
+ *
  * @module lib/storage
  */
 import * as SecureStore from 'expo-secure-store';
@@ -30,7 +34,11 @@ class StorageService {
         if (type === 'secure') {
             await SecureStore.setItemAsync(key, serialized);
         } else {
-            await AsyncStorage.setItem(key, serialized);
+            try {
+                await AsyncStorage.setItem(key, serialized);
+            } catch (error) {
+                console.warn('[Storage] setItem failed:', error);
+            }
         }
     }
 
@@ -47,7 +55,8 @@ class StorageService {
                 : await AsyncStorage.getItem(key);
 
             return serialized ? JSON.parse(serialized) : null;
-        } catch {
+        } catch (error) {
+            console.warn('[Storage] getItem failed:', error);
             return null;
         }
     }
@@ -61,7 +70,11 @@ class StorageService {
         if (type === 'secure') {
             await SecureStore.deleteItemAsync(key);
         } else {
-            await AsyncStorage.removeItem(key);
+            try {
+                await AsyncStorage.removeItem(key);
+            } catch (error) {
+                console.warn('[Storage] removeItem failed:', error);
+            }
         }
     }
 
@@ -69,14 +82,23 @@ class StorageService {
      * Clear all storage (async only - SecureStore doesn't support clear all)
      */
     async clearAsync(): Promise<void> {
-        await AsyncStorage.clear();
+        try {
+            await AsyncStorage.clear();
+        } catch (error) {
+            console.warn('[Storage] clearAsync failed:', error);
+        }
     }
 
     /**
      * Get all keys from async storage
      */
     async getAllKeys(): Promise<readonly string[]> {
-        return await AsyncStorage.getAllKeys();
+        try {
+            return await AsyncStorage.getAllKeys();
+        } catch (error) {
+            console.warn('[Storage] getAllKeys failed:', error);
+            return [];
+        }
     }
 
     /**
