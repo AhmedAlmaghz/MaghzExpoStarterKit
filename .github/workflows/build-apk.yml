@@ -1,24 +1,30 @@
 name: Build Android APK
 
 # ─────────────────────────────────────────────────────────────────────────────
-# This workflow builds an Android APK every time a new tag (v*) is pushed.
+# Builds an Android APK entirely on GitHub runners — no Expo EAS required.
+#
+# Triggered by pushing a tag matching v* (e.g. v0.1.0, v1.0.0-beta.1)
+#
 # The APK is uploaded as a GitHub Actions artifact AND attached to a
 # GitHub Release so you can download it directly to your phone.
 #
-# Prerequisites (one-time setup):
-#   1. Create an Expo account at https://expo.dev
-#   2. Run `eas login` locally and then `eas build:configure`
-#   3. Generate an access token at https://expo.dev/settings/access-tokens
-#   4. Add the token as a repository secret named EXPO_TOKEN:
-#      GitHub → repo → Settings → Secrets and variables → Actions → New secret
+# Prerequisites:
+#   • A keystore for signing the release build.
+#     Generate one with:
+#       keytool -genkey -v -keystore release.keystore \
+#         -alias release -keyalg RSA -keysize 2048 -validity 10000
+#   • Add the keystore base64 and password as repository secrets:
+#       RELEASE_KEYSTORE_BASE64  – base64 of your .keystore file
+#       RELEASE_KEYSTORE_PASSWORD – keystore password
+#       RELEASE_KEY_ALIAS        – key alias (e.g. "release")
+#       RELEASE_KEY_PASSWORD      – key password
+#     To base64-encode the keystore:
+#       base64 -i release.keystore | pbcopy   (macOS)
+#       certutil -encode release.keystore tmp.b64  (Windows)
 #
 # Usage:
 #   git tag v0.1.0
 #   git push origin v0.1.0
-#
-# The APK will appear under:
-#   • Actions → <run> → Artifacts (downloadable for 90 days)
-#   • Releases → v0.1.0 (permanent download link)
 # ─────────────────────────────────────────────────────────────────────────────
 
 on:
@@ -31,9 +37,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: 🔨 Build APK
+  build-android:
+    name: 🏗️ Build Android APK
     runs-on: ubuntu-latest
+
+    env:
+      # Gradle opts for memory efficiency on CI
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Xmx4g"
 
     steps:
       - name: 🏗 Checkout repository
@@ -42,48 +52,60 @@ jobs:
       - name: 🏗 Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: 20
           cache: npm
 
-      - name: 🏗 Setup EAS CLI
-        run: npm install -g eas-cli
+      - name: 🏗 Setup Java (for Android build)
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 17
 
       - name: 📦 Install dependencies
         run: |
-          # CI-friendly install: tolerate lockfile mismatches and peer dependency conflicts
           npm config set legacy-peer-deps true
           npm install --no-audit --prefer-offline
 
-      - name: 🔨 Build APK on EAS
-        run: eas build --platform android --profile preview --non-interactive --wait
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: 🏗 Generate native Android project
+        run: npx expo prebuild --platform android --clean
 
-      - name: 📥 Download APK from EAS
+      - name: 🔑 Decode signing keystore
+        if: env.RELEASE_KEYSTORE_BASE64 != ''
         run: |
-          BUILD_JSON=$(eas build:list --platform android --json --limit 1)
-          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-          if [ -z "$BUILD_URL" ] || [ "$BUILD_URL" = "null" ]; then
-            echo "❌ Could not retrieve build URL"
-            exit 1
-          fi
-          echo "⬇️  Downloading APK from: $BUILD_URL"
-          curl -L -o app-release.apk "$BUILD_URL"
-          echo "✅ APK downloaded successfully ($(du -h app-release.apk | cut -f1))"
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      - name: 🔨 Build release APK
+        working-directory: android
+        run: |
+          if [ -f app/release.keystore ]; then
+            echo "🔐 Building signed release APK"
+            ./gradlew assembleRelease \
+              -PMYAPP_UPLOAD_STORE_FILE=release.keystore \
+              -PMYAPP_UPLOAD_STORE_PASSWORD="${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" \
+              -PMYAPP_UPLOAD_KEY_ALIAS="${{ secrets.RELEASE_KEY_ALIAS }}" \
+              -PMYAPP_UPLOAD_KEY_PASSWORD="${{ secrets.RELEASE_KEY_PASSWORD }}"
+          else
+            echo "⚠️  No keystore found — building unsigned debug APK"
+            ./gradlew assembleDebug
+          fi
 
       - name: 📤 Upload APK as GitHub artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
-          path: app-release.apk
+          path: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/apk/debug/*.apk
           retention-days: 90
 
       - name: 🚀 Create GitHub Release with APK
         uses: softprops/action-gh-release@v2
         with:
-          files: app-release.apk
+          files: |
+            android/app/build/outputs/apk/release/*.apk
+            android/app/build/outputs/apk/debug/*.apk
           generate_release_notes: true
           draft: false
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') }}
