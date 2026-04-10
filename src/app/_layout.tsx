@@ -6,7 +6,7 @@
  *
  * @see https://docs.expo.dev/router/create-layouts/
  */
-import '../global.css';
+// import '../global.css'; // Enable when NativeWind metro config is set up
 import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';

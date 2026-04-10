@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maghz Expo Starter Kit",
     "slug": "maghz-expo-starter-kit",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -46,7 +46,6 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/notification-icon.png",
           "color": "#3b82f6"
         }
       ],
