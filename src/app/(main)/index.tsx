@@ -51,7 +51,13 @@ export default function DashboardScreen(): React.ReactElement {
     return (
         <ScrollView
             style={[styles.container, { backgroundColor: colors.background }]}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary[500]} />}
+            refreshControl={
+                <RefreshControl 
+                    refreshing={!!refreshing} 
+                    onRefresh={onRefresh} 
+                    tintColor={colors.primary[500]} 
+                />
+            }
         >
             {/* Welcome */}
             <View style={styles.welcomeSection}>

@@ -12,7 +12,7 @@ declare namespace NodeJS {
         /** Supabase project URL */
         EXPO_PUBLIC_SUPABASE_URL: string;
         /** Supabase anonymous key */
-        EXPO_PUBLIC_SUPABASE_ANON_KEY: string;
+        EXPO_PUBLIC_SUPABASE_KEY: string;
         /** Google Web OAuth client ID */
         EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: string;
         /** Google iOS OAuth client ID */

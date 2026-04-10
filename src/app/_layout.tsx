@@ -12,6 +12,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
+import { I18nManager } from 'react-native';
 import { useI18nStore } from '@/i18n/i18nStore';
 import { useAuthStore } from '@/auth/authStore';
 import { sessionService } from '@/auth/services/sessionService';
@@ -21,13 +22,15 @@ function RootLayoutNav(): React.ReactElement {
 
     return (
         <>
-            <StatusBar style={isDarkMode ? 'light' : 'dark'} />
+            <StatusBar style={isDarkMode ? 'light' : 'dark'} translucent={true} />
             <Stack
                 screenOptions={{
+                    headerShown: true,
                     headerStyle: {
                         backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
                     },
                     headerTintColor: isDarkMode ? '#f8fafc' : '#0f172a',
+                    headerShadowVisible: false,
                     contentStyle: {
                         backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc',
                     },
@@ -52,6 +55,14 @@ function AppInitializer(): null {
         const initialize = async () => {
             // Initialize i18n
             await initializeI18n();
+
+            // Set RTL/LTR native setting
+            const isRTL = useI18nStore.getState().isRTL;
+            if (I18nManager.isRTL !== isRTL) {
+                I18nManager.allowRTL(isRTL ? true : false);
+                I18nManager.forceRTL(isRTL ? true : false);
+            }
+
             // Initialize session service
             await sessionService.initialize();
             // Try to restore auth session

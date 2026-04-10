@@ -113,12 +113,12 @@ export function Input({
                     onChangeText={onChangeText}
                     placeholder={placeholder}
                     placeholderTextColor={colors.textTertiary}
-                    secureTextEntry={secureTextEntry}
+                    secureTextEntry={!!secureTextEntry}
                     editable={!disabled}
                     keyboardType={keyboardType}
                     autoCapitalize={autoCapitalize}
                     autoComplete={autoComplete}
-                    multiline={multiline}
+                    multiline={!!multiline}
                     numberOfLines={numberOfLines}
                     style={[
                         styles.input,

@@ -54,7 +54,7 @@ export function Card({
                     borderColor: colors.border,
                     padding,
                 },
-                elevated && {
+                !!elevated && {
                     shadowColor: colors.shadow,
                     shadowOffset: { width: 0, height: 2 },
                     shadowOpacity: 0.1,

@@ -28,7 +28,7 @@ export function Loading({
 }: LoadingProps): React.ReactElement {
     const { colors } = useTheme();
 
-    if (fullScreen) {
+    if (!!fullScreen) {
         return (
             <View style={[styles.fullScreen, { backgroundColor: colors.overlay }]}>
                 <View style={[styles.container, { backgroundColor: colors.card, borderRadius: 16 }]}>

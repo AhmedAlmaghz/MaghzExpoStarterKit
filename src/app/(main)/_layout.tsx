@@ -30,7 +30,7 @@ export default function MainLayout(): React.ReactElement {
                     backgroundColor: colors.headerBackground,
                 },
                 headerTintColor: colors.text,
-                headerShadowVisible: false,
+                headerShadowVisible: !!false,
             }}
         >
             <Tabs.Screen
@@ -71,7 +71,7 @@ export default function MainLayout(): React.ReactElement {
                     title: t('nav.admin'),
                     tabBarLabel: t('nav.admin'),
                     tabBarIcon: ({ color }) => <TabIcon emoji="🛡️" color={color} />,
-                    href: isAdmin ? undefined : null,
+                    href: isAdmin ? undefined : undefined,
                 }}
             />
             <Tabs.Screen
@@ -80,7 +80,7 @@ export default function MainLayout(): React.ReactElement {
                     title: t('nav.about'),
                     tabBarLabel: t('nav.about'),
                     tabBarIcon: ({ color }) => <TabIcon emoji="ℹ️" color={color} />,
-                    href: null,
+                    href: undefined,
                 }}
             />
             <Tabs.Screen
@@ -89,7 +89,7 @@ export default function MainLayout(): React.ReactElement {
                     title: t('nav.help'),
                     tabBarLabel: t('nav.help'),
                     tabBarIcon: ({ color }) => <TabIcon emoji="❓" color={color} />,
-                    href: null,
+                    href: undefined,
                 }}
             />
         </Tabs>

@@ -47,7 +47,7 @@ interface ThemeActions {
  * Resolve isDarkMode from mode and system preference
  */
 function resolveIsDarkMode(mode: ThemeMode, systemIsDark: boolean): boolean {
-    if (mode === 'system') return systemIsDark;
+    if (mode === 'system') return !!systemIsDark;
     return mode === 'dark';
 }
 

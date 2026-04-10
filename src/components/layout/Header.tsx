@@ -70,7 +70,7 @@ export function Header({
 
                 {/* Right section - Actions */}
                 <View style={styles.rightSection}>
-                    {showSearch && (
+                    {!!showSearch && (
                         <TouchableOpacity
                             onPress={onSearchPress}
                             style={styles.iconButton}
@@ -80,7 +80,7 @@ export function Header({
                         </TouchableOpacity>
                     )}
 
-                    {showNotifications && (
+                    {!!showNotifications && (
                         <TouchableOpacity
                             onPress={onNotificationsPress}
                             style={styles.iconButton}
@@ -90,7 +90,7 @@ export function Header({
                         </TouchableOpacity>
                     )}
 
-                    {showUser && user && (
+                    {!!showUser && user && (
                         <TouchableOpacity
                             onPress={onUserPress}
                             style={styles.avatarButton}

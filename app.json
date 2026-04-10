@@ -2,7 +2,7 @@
   "expo": {
     "name": "Maghz Expo Starter Kit",
     "slug": "maghz-expo-starter-kit",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -58,7 +58,7 @@
     ],
     "extra": {
       "router": {
-        "origin": false
+        "origin": "https://example.com"
       },
       "appDirectory": "./src/app"
     },

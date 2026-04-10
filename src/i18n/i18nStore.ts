@@ -106,7 +106,7 @@ export const useI18nStore = create<I18nState & I18nActions>((set, get) => ({
         set({
             locale,
             localeConfig,
-            isRTL: localeConfig.direction === 'rtl',
+            isRTL: !!(localeConfig.direction === 'rtl'),
         });
         storage.setItem(STORAGE_KEYS.LOCALE, locale);
     },
@@ -135,7 +135,7 @@ export const useI18nStore = create<I18nState & I18nActions>((set, get) => ({
             );
         }
 
-        return value;
+        return String(value);
     },
 
     initialize: async () => {
@@ -145,7 +145,7 @@ export const useI18nStore = create<I18nState & I18nActions>((set, get) => ({
             set({
                 locale: savedLocale,
                 localeConfig,
-                isRTL: localeConfig.direction === 'rtl',
+                isRTL: !!(localeConfig.direction === 'rtl'),
             });
         }
     },
