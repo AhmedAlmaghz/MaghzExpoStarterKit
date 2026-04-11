@@ -166,6 +166,13 @@
     "analytics": "Analytics",
     "contentManagement": "Content Management",
     "auditLogs": "Audit Logs",
+    "logs": {
+        "title": "Audit Logs",
+        "type": "Type",
+        "action": "Action",
+        "user": "User",
+        "time": "Time"
+    },
     "systemHealth": "System Health",
     "performance": "Performance",
     "manageRoles": "Manage Roles",

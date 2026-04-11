@@ -8,17 +8,53 @@ import { Header } from '@/components/layout/Header';
 import { Card } from '@/components/ui/Card';
 
 import { useRequireAuth } from '@/auth/hooks/useRequireAuth';
+import { userService } from '@/lib/services/userService';
+import { ActivityIndicator, RefreshControl } from 'react-native';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
     useRequireAuth();
     const { user, logout } = useAuth();
     const { colors } = useTheme();
     const { t } = useTranslation();
+    const router = useRouter();
+
+    const [loading, setLoading] = React.useState(true);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [stats, setStats] = React.useState<any>(null);
+
+    const fetchStats = React.useCallback(async () => {
+        if (!user?.id) return;
+        try {
+            const data = await userService.getUserMetrics(user.id);
+            setStats(data);
+        } catch (error) {
+            console.error('Failed to load profile stats:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, [user?.id]);
+
+    React.useEffect(() => {
+        fetchStats();
+    }, [fetchStats]);
+
+    if (loading && !refreshing) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <Header title={t('nav.profile')} />
-            <ScrollView style={styles.container}>
+            <ScrollView 
+                style={styles.container}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchStats(); }} tintColor={colors.primary[500]} />}
+            >
                 <View style={styles.profileHeader}>
                     <View style={[styles.avatarContainer, { backgroundColor: colors.primary[100] }]}>
                         <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
@@ -35,12 +71,12 @@ export default function ProfileScreen() {
                         </View>
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
                         <View style={styles.statItem}>
-                            <Text style={[styles.statValue, { color: colors.text }]}>8</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('profile.reviews') || 'Reviews'}</Text>
+                            <Text style={[styles.statValue, { color: colors.text, textTransform: 'capitalize' }]}>{stats?.status || 'active'}</Text>
+                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('common.status') || 'Status'}</Text>
                         </View>
                         <View style={[styles.statDivider, { backgroundColor: colors.border }]} />
                         <View style={styles.statItem}>
-                            <Text style={[styles.statValue, { color: colors.text }]}>240</Text>
+                            <Text style={[styles.statValue, { color: colors.text }]}>{stats?.points || 0}</Text>
                             <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('profile.points') || 'Points'}</Text>
                         </View>
                     </View>
@@ -50,7 +86,10 @@ export default function ProfileScreen() {
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('profile.settings') || 'Account Settings'}</Text>
                     
                     <Card style={styles.settingsCard}>
-                        <TouchableOpacity style={styles.settingsRow}>
+                        <TouchableOpacity 
+                            style={styles.settingsRow}
+                            onPress={() => router.push('/(main)/profile/edit' as any)}
+                        >
                             <Ionicons name="person-outline" size={22} color={colors.primary[500]} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.personalInfo') || 'Personal Information'}</Text>
                             <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -58,7 +97,10 @@ export default function ProfileScreen() {
                         
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-                        <TouchableOpacity style={styles.settingsRow}>
+                        <TouchableOpacity 
+                            style={styles.settingsRow}
+                            onPress={() => { /* TODO: Add Addresses screen */ }}
+                        >
                             <Ionicons name="location-outline" size={22} color={colors.primary[500]} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.addresses') || 'My Addresses'}</Text>
                             <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -66,7 +108,10 @@ export default function ProfileScreen() {
 
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-                        <TouchableOpacity style={styles.settingsRow}>
+                        <TouchableOpacity 
+                            style={styles.settingsRow}
+                            onPress={() => { /* TODO: Add Payments screen */ }}
+                        >
                             <Ionicons name="card-outline" size={22} color={colors.primary[500]} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.payments') || 'Payment Methods'}</Text>
                             <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />

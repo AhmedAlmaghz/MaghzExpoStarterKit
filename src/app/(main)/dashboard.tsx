@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
@@ -16,6 +17,7 @@ export default function DashboardScreen(): React.ReactElement {
     const { user, isAdmin, isSuperAdmin } = useAuth();
     const { colors } = useTheme();
     const { t } = useTranslation();
+    const router = useRouter();
 
     const [loading, setLoading] = React.useState(true);
     const [refreshing, setRefreshing] = React.useState(false);
@@ -82,25 +84,34 @@ export default function DashboardScreen(): React.ReactElement {
                         <View style={styles.adminSection}>
                             <Text style={[styles.sectionTitle, { color: colors.text }]}>Administrative Control</Text>
                             <Card style={styles.adminCard}>
-                                <View style={styles.adminRow}>
+                                <TouchableOpacity 
+                                    style={styles.adminRow}
+                                    onPress={() => router.push('/(main)/admin/users' as any)}
+                                >
                                     <Ionicons name="people" size={20} color={colors.text} />
                                     <Text style={[styles.adminLabel, { color: colors.text }]}>User Management</Text>
                                     <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
-                                </View>
+                                </TouchableOpacity>
                                 <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                                <View style={styles.adminRow}>
+                                <TouchableOpacity 
+                                    style={styles.adminRow}
+                                    onPress={() => router.push('/(main)/admin' as any)}
+                                >
                                     <Ionicons name="settings" size={20} color={colors.text} />
                                     <Text style={[styles.adminLabel, { color: colors.text }]}>System Config</Text>
                                     <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
-                                </View>
+                                </TouchableOpacity>
                                 {isSuperAdmin && (
                                     <>
                                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
-                                        <View style={styles.adminRow}>
+                                        <TouchableOpacity 
+                                            style={styles.adminRow}
+                                            onPress={() => router.push('/(main)/admin/audit-logs' as any)}
+                                        >
                                             <Ionicons name="shield-checkmark" size={20} color={colors.error[500]} />
                                             <Text style={[styles.adminLabel, { color: colors.error[500] }]}>Security Audit</Text>
                                             <Ionicons name="chevron-forward" size={16} color={colors.error[500]} />
-                                        </View>
+                                        </TouchableOpacity>
                                     </>
                                 )}
                             </Card>

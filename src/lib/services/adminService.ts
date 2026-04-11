@@ -59,6 +59,54 @@ export const adminService = {
     },
 
     /**
+     * Get system-wide audit logs
+     */
+    async getAuditLogs(limit = 20) {
+        try {
+            const { data, error } = await supabase
+                .from(TABLES.AUDIT_LOGS)
+                .select('*')
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('[AdminService] Failed to fetch audit logs:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Get user growth stats for the last 7 days
+     */
+    async getGrowthStats() {
+        try {
+            const { data, error } = await supabase
+                .from(TABLES.USERS)
+                .select('created_at');
+
+            if (error) throw error;
+            
+            // Basic grouping by day for simulation/display
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const growthData = days.map(day => ({ day, count: 0 }));
+            
+            // In a real app, this would be a sophisticated aggregation
+            // Here we just simulate grouping for UI demonstration
+            data?.forEach(u => {
+                const dayIndex = new Date(u.created_at).getDay();
+                growthData[dayIndex].count++;
+            });
+            
+            return growthData;
+        } catch (error) {
+            console.error('[AdminService] Failed to fetch growth stats:', error);
+            throw error;
+        }
+    },
+
+    /**
      * Get list of all users with their profiles
      */
     async getAllUsers() {

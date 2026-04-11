@@ -10,28 +10,64 @@ import { View, Text, ScrollView, StyleSheet } from 'react-native';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { Card } from '@/components/ui/Card';
+import { adminService } from '@/lib/services/adminService';
+import { ActivityIndicator, RefreshControl } from 'react-native';
 
 export default function AuditLogsScreen(): React.ReactElement {
     const { t } = useTranslation();
     const { colors } = useTheme();
 
-    const logs = [
-        { id: '1', action: 'User Login', user: 'john@example.com', time: '2024-01-15 10:30 AM', type: 'info' },
-        { id: '2', action: 'Profile Updated', user: 'jane@example.com', time: '2024-01-15 10:15 AM', type: 'info' },
-        { id: '3', action: 'User Suspended', user: 'admin@example.com', time: '2024-01-15 09:45 AM', type: 'warning' },
-    ];
+    const [logs, setLogs] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const fetchLogs = React.useCallback(async () => {
+        try {
+            const data = await adminService.getAuditLogs();
+            setLogs(data);
+        } catch (error) {
+            console.error('Failed to load audit logs:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        fetchLogs();
+    }, [fetchLogs]);
+
+    const getLogIcon = (type: string) => {
+        switch (type.toLowerCase()) {
+            case 'warning': return '⚠️';
+            case 'error': return '❌';
+            case 'success': return '✅';
+            default: return 'ℹ️';
+        }
+    };
+
+    if (loading && !refreshing) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+            </View>
+        );
+    }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ScrollView 
+            style={[styles.container, { backgroundColor: colors.background }]}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchLogs(); }} tintColor={colors.primary[500]} />}
+        >
             <Text style={[styles.pageTitle, { color: colors.text }]}>{t('admin.auditLogs')}</Text>
             {logs.map((log) => (
                 <Card key={log.id} style={styles.logCard}>
                     <View style={styles.logHeader}>
-                        <Text style={styles.logIcon}>{log.type === 'warning' ? '⚠️' : 'ℹ️'}</Text>
+                        <Text style={styles.logIcon}>{getLogIcon(log.type || 'info')}</Text>
                         <Text style={[styles.logAction, { color: colors.text }]}>{log.action}</Text>
                     </View>
-                    <Text style={[styles.logUser, { color: colors.textSecondary }]}>{log.user}</Text>
-                    <Text style={[styles.logTime, { color: colors.textTertiary }]}>{log.time}</Text>
+                    <Text style={[styles.logUser, { color: colors.textSecondary }]}>{log.user || 'System'}</Text>
+                    <Text style={[styles.logTime, { color: colors.textTertiary }]}>{new Date(log.created_at).toLocaleString()}</Text>
                 </Card>
             ))}
         </ScrollView>

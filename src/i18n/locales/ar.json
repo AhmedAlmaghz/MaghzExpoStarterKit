@@ -181,6 +181,13 @@
         "analytics": "التحليلات",
         "contentManagement": "إدارة المحتوى",
         "auditLogs": "سجلات التدقيق",
+        "logs": {
+            "title": "سجل العمليات",
+            "type": "النوع",
+            "action": "العملية",
+            "user": "المستخدم",
+            "time": "الوقت"
+        },
         "systemHealth": "صحة النظام",
         "performance": "الأداء",
         "manageRoles": "إدارة الأدوار",
