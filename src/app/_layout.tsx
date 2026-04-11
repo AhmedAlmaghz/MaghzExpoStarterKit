@@ -8,7 +8,7 @@
  */
 // import '../global.css'; // Enable when NativeWind metro config is set up
 import { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
@@ -50,6 +50,10 @@ function RootLayoutNav(): React.ReactElement {
 function AppInitializer(): null {
     const initializeI18n = useI18nStore((state) => state.initialize);
     const initializeAuth = useAuthStore((state) => state.refreshSession);
+    const status = useAuthStore((state) => state.status);
+    
+    const segments = useSegments();
+    const router = useRouter();
 
     useEffect(() => {
         const initialize = async () => {
@@ -74,6 +78,39 @@ function AppInitializer(): null {
         };
         initialize();
     }, [initializeI18n, initializeAuth]);
+
+    useEffect(() => {
+        // Debugging logs to see state changes in terminal
+        console.log('[Auth Guard] Status:', status);
+        console.log('[Auth Guard] Segments:', segments);
+
+        // Don't redirect while still initializing
+        if (status === 'loading') {
+            console.log('[Auth Guard] Still loading, waiting...');
+            return;
+        }
+
+        const inAuthGroup = segments[0] === '(auth)';
+
+        if (status === 'authenticated') {
+            // Redirect to (main) if we are in auth group OR at the root path
+            if (inAuthGroup || segments.length === 0 || (segments.length === 1 && segments[0] === 'index')) {
+                console.log('[Auth Guard] Authenticated, redirecting to (main)...');
+                // Use a small timeout to ensure router is ready
+                setTimeout(() => {
+                  router.replace('/(main)');
+                }, 1);
+            }
+        } else if (status === 'unauthenticated') {
+            // Redirect to login if we are NOT in auth group
+            if (!inAuthGroup) {
+                console.log('[Auth Guard] Unauthenticated, redirecting to (auth)/login...');
+                setTimeout(() => {
+                  router.replace('/(auth)/login');
+                }, 1);
+            }
+        }
+    }, [status, segments]);
 
     return null;
 }

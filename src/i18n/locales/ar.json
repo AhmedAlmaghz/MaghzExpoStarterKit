@@ -70,20 +70,6 @@
             "tooManyAttempts": "محاولات كثيرة. يرجى المحاولة لاحقاً."
         }
     },
-    "nav": {
-        "home": "الرئيسية",
-        "dashboard": "لوحة المعلومات",
-        "profile": "الملف الشخصي",
-        "settings": "الإعدادات",
-        "notifications": "الإشعارات",
-        "admin": "الإدارة",
-        "about": "حول",
-        "help": "المساعدة",
-        "analytics": "التحليلات",
-        "users": "المستخدمون",
-        "content": "المحتوى",
-        "auditLogs": "سجلات التدقيق"
-    },
     "dashboard": {
         "title": "لوحة المعلومات",
         "welcome": "مرحباً بعودتك",
@@ -93,7 +79,20 @@
         "tasks": "المهام",
         "alerts": "التنبيهات",
         "noAlerts": "لا توجد تنبيهات",
-        "viewAll": "عرض الكل"
+        "viewAll": "عرض الكل",
+        "trending": "الرائج الآن",
+        "categories": "التصنيفات الشائعة",
+        "seeMore": "رؤية المزيد",
+        "searchPlaceholder": "ابحث عن المنتجات أو الخدمات..."
+    },
+    "nav": {
+        "home": "الرئيسية",
+        "dashboard": "لوحة المعلومات",
+        "profile": "حسابي",
+        "settings": "الإعدادات",
+        "notifications": "الإشعارات",
+        "pages": "الصفحات",
+        "admin": "الإدارة"
     },
     "profile": {
         "title": "الملف الشخصي",

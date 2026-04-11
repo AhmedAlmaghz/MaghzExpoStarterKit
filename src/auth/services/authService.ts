@@ -158,6 +158,37 @@ class AuthService {
             throw new Error('Registration failed - no user data returned');
         }
 
+        // 1. First, insert into public.users table as per schema
+        const { error: userTableError } = await supabase
+            .from('users')
+            .upsert({
+                id: authData.user.id,
+                email: data.email,
+                phone: data.phone,
+                role: 'user',
+                status: 'active',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            });
+
+        if (userTableError) {
+            console.error('Error creating record in users table:', userTableError);
+        }
+
+        // 2. Second, insert into profiles table
+        const { error: profileError } = await supabase
+            .from('profiles')
+            .upsert({
+                user_id: authData.user.id,
+                display_name: data.displayName,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+            });
+
+        if (profileError) {
+            console.error('Error creating profile:', profileError);
+        }
+
         const user = this.mapSupabaseUser(authData.user);
         const session = authData.session
             ? this.mapSupabaseSession(authData.session, user.role)

@@ -71,29 +71,12 @@
     }
   },
   "nav": {
-    "home": "Home",
     "dashboard": "Dashboard",
     "profile": "Profile",
     "settings": "Settings",
     "notifications": "Notifications",
-    "admin": "Admin",
-    "about": "About",
-    "help": "Help",
-    "analytics": "Analytics",
-    "users": "Users",
-    "content": "Content",
-    "auditLogs": "Audit Logs"
-  },
-  "dashboard": {
-    "title": "Dashboard",
-    "welcome": "Welcome back",
-    "quickStats": "Quick Stats",
-    "recentActivity": "Recent Activity",
-    "noActivity": "No recent activity",
-    "tasks": "Tasks",
-    "alerts": "Alerts",
-    "noAlerts": "No alerts",
-    "viewAll": "View All"
+    "pages": "Pages",
+    "admin": "Admin"
   },
   "profile": {
     "title": "Profile",

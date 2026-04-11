@@ -22,7 +22,7 @@ import type {
  * Initial auth state
  */
 const initialState = {
-    status: 'unauthenticated' as const,
+    status: 'loading' as const,
     user: null as AuthUser | null,
     session: null as AuthSession | null,
     isLoading: false,
