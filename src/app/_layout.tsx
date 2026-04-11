@@ -7,13 +7,14 @@
  * @see https://docs.expo.dev/router/create-layouts/
  */
 // import '../global.css'; // Enable when NativeWind metro config is set up
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { activateKeepAwake } from 'expo-keep-awake';
-import { View } from 'react-native';
+import { activateKeepAwakeAsync } from 'expo-keep-awake';
+import { View, ActivityIndicator } from 'react-native';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
+import { useThemeStore } from '@/theme/themeStore';
 import { I18nManager } from 'react-native';
 import { useI18nStore } from '@/i18n/i18nStore';
 import { useAuthStore } from '@/auth/authStore';
@@ -59,44 +60,50 @@ function RootLayoutNav(): React.ReactElement {
  */
 function AppInitializer(): null {
     const initializeI18n = useI18nStore((state) => state.initialize);
+    const initializeTheme = useThemeStore((state) => state.initialize);
     const initializeAuth = useAuthStore((state) => state.refreshSession);
     const status = useAuthStore((state) => state.status);
     
+    const [isReady, setIsReady] = React.useState(false);
+    
     const segments = useSegments();
     const router = useRouter();
+    const { colors } = useTheme();
 
     useEffect(() => {
         const initialize = async () => {
-            // Suppress "Unable to activate keep awake" warning in some dev environments
             try {
-                if (__DEV__) {
-                    await activateKeepAwake();
-                }
+                // Use the modern async version to prevent warnings
+                await activateKeepAwakeAsync();
             } catch (e) {
-                console.log('[Dev] KeepAlive not supported in this environment');
+                console.log('[Dev] KeepAlive not supported');
             }
 
-            // Initialize i18n
-            await initializeI18n();
-
-            // Set RTL/LTR native setting
-            const isRTL = useI18nStore.getState().isRTL;
-            if (I18nManager.isRTL !== isRTL) {
-                I18nManager.allowRTL(isRTL ? true : false);
-                I18nManager.forceRTL(isRTL ? true : false);
-            }
-
-            // Initialize session service
-            await sessionService.initialize();
-            // Try to restore auth session
             try {
+                // Initialize all persistent stores in parallel
+                await Promise.all([
+                    initializeI18n(),
+                    initializeTheme(),
+                    sessionService.initialize()
+                ]);
+
+                // Set RTL/LTR native setting
+                const isRTL = useI18nStore.getState().isRTL;
+                if (I18nManager.isRTL !== isRTL) {
+                    I18nManager.allowRTL(isRTL ? true : false);
+                    I18nManager.forceRTL(isRTL ? true : false);
+                }
+
+                // Try to restore auth session
                 await initializeAuth();
-            } catch {
-                // Session restoration failed, user needs to login
+            } catch (error) {
+                console.error('[Initializer] Critical error during startup:', error);
+            } finally {
+                setIsReady(true);
             }
         };
         initialize();
-    }, [initializeI18n, initializeAuth]);
+    }, [initializeI18n, initializeTheme, initializeAuth]);
 
     useEffect(() => {
         // Debugging logs to see state changes in terminal
@@ -131,7 +138,15 @@ function AppInitializer(): null {
                 }, 10);
             }
         }
-    }, [status, segments]);
+    }, [status, segments, isReady]);
+
+    if (!isReady) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+            </View>
+        );
+    }
 
     return null;
 }

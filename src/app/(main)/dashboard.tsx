@@ -6,6 +6,8 @@ import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
+import { userService } from '@/lib/services/userService';
+import { ActivityIndicator, RefreshControl } from 'react-native';
 
 import { useRequireAuth } from '@/auth/hooks/useRequireAuth';
 
@@ -15,12 +17,46 @@ export default function DashboardScreen(): React.ReactElement {
     const { colors } = useTheme();
     const { t } = useTranslation();
 
+    const [loading, setLoading] = React.useState(true);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [metrics, setMetrics] = React.useState<any>(null);
+
+    const fetchUserStats = React.useCallback(async () => {
+        if (!user?.id) return;
+        try {
+            const data = await userService.getUserMetrics(user.id);
+            setMetrics(data);
+        } catch (error) {
+            console.error('Failed to load user metrics:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, [user?.id]);
+
+    React.useEffect(() => {
+        fetchUserStats();
+    }, [fetchUserStats]);
+
     const roleLabel = isSuperAdmin ? 'Super Admin' : (isAdmin ? 'Admin' : 'User');
+
+    if (loading && !refreshing) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <Header title={t('dashboard.title')} />
-            <ScrollView style={styles.container}>
+            <ScrollView 
+                style={styles.container}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUserStats(); }} tintColor={colors.primary[500]} />
+                }
+            >
                 <View style={styles.header}>
                     <Text style={[styles.welcome, { color: colors.textSecondary }]}>{t('dashboard.welcome')}</Text>
                     <Text style={[styles.roleLabel, { color: colors.primary[500] }]}>{roleLabel}</Text>
@@ -31,13 +67,13 @@ export default function DashboardScreen(): React.ReactElement {
                     <View style={styles.statsRow}>
                         <Card style={styles.statCard}>
                             <Ionicons name="stats-chart" size={24} color={colors.primary[500]} />
-                            <Text style={[styles.statValue, { color: colors.text }]}>128</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Points</Text>
+                            <Text style={[styles.statValue, { color: colors.text }]}>{metrics?.points || 0}</Text>
+                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('common.points') || 'Points'}</Text>
                         </Card>
                         <Card style={styles.statCard}>
-                            <Ionicons name="time" size={24} color={colors.warning[500]} />
-                            <Text style={[styles.statValue, { color: colors.text }]}>12</Text>
-                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Hours</Text>
+                            <Ionicons name="shield-checkmark" size={24} color={colors.success[500]} />
+                            <Text style={[styles.statValue, { color: colors.text, textTransform: 'capitalize' }]}>{metrics?.status || 'active'}</Text>
+                            <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{t('common.status') || 'Status'}</Text>
                         </Card>
                     </View>
 

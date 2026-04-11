@@ -10,25 +10,23 @@
 import { createClient } from '@supabase/supabase-js';
 import { SUPABASE } from './constants';
 
-const supabaseStorage: Record<string, string> = {};
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Custom Supabase storage adapter using in-memory storage
- *
- * For production with native builds, use SecureStore.
+ * Custom Supabase storage adapter using AsyncStorage
  *
  * Implements the Supabase SupportedStorage interface:
  * @see https://supabase.com/docs/reference/javascript/initializing#custom-storage-adapter
  */
 const supabaseStorageAdapter = {
   getItem: async (key: string): Promise<string | null> => {
-    return supabaseStorage[key] ?? null;
+    return AsyncStorage.getItem(key);
   },
   setItem: async (key: string, value: string): Promise<void> => {
-    supabaseStorage[key] = value;
+    return AsyncStorage.setItem(key, value);
   },
   removeItem: async (key: string): Promise<void> => {
-    delete supabaseStorage[key];
+    return AsyncStorage.removeItem(key);
   },
 };
 

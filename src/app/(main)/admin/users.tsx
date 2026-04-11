@@ -10,30 +10,62 @@ import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-nati
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { Card } from '@/components/ui/Card';
+import { adminService } from '@/lib/services/adminService';
+import { ActivityIndicator, RefreshControl } from 'react-native';
 
 export default function UserManagementScreen(): React.ReactElement {
     const { t } = useTranslation();
     const { colors } = useTheme();
 
-    // Placeholder data
-    const users = [
-        { id: '1', name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active' },
-        { id: '2', name: 'Jane Smith', email: 'jane@example.com', role: 'admin', status: 'active' },
-        { id: '3', name: 'Bob Wilson', email: 'bob@example.com', role: 'user', status: 'suspended' },
-    ];
+    const [users, setUsers] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [refreshing, setRefreshing] = React.useState(false);
+
+    const fetchUsers = React.useCallback(async () => {
+        try {
+            const data = await adminService.getAllUsers();
+            setUsers(data);
+        } catch (error) {
+            console.error('Failed to load users:', error);
+        } finally {
+            setLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    React.useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    if (loading && !refreshing) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
+                <ActivityIndicator size="large" color={colors.primary[500]} />
+            </View>
+        );
+    }
 
     return (
-        <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ScrollView 
+            style={[styles.container, { backgroundColor: colors.background }]}
+            refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchUsers(); }} tintColor={colors.primary[500]} />
+            }
+        >
             <Text style={[styles.pageTitle, { color: colors.text }]}>{t('admin.userManagement')}</Text>
 
             {users.map((user) => (
                 <Card key={user.id} style={styles.userCard}>
                     <View style={styles.userHeader}>
                         <View style={[styles.userAvatar, { backgroundColor: colors.primary[500] }]}>
-                            <Text style={styles.avatarText}>{user.name.charAt(0)}</Text>
+                            <Text style={styles.avatarText}>
+                                {(user.profiles?.[0]?.display_name || user.email || 'U').charAt(0).toUpperCase()}
+                            </Text>
                         </View>
                         <View style={styles.userInfo}>
-                            <Text style={[styles.userName, { color: colors.text }]}>{user.name}</Text>
+                            <Text style={[styles.userName, { color: colors.text }]}>
+                                {user.profiles?.[0]?.display_name || 'Anonymous User'}
+                            </Text>
                             <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user.email}</Text>
                         </View>
                     </View>

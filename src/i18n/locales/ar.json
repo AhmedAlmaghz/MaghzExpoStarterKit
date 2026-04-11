@@ -26,7 +26,9 @@
         "optional": "اختياري",
         "seeMore": "رؤية المزيد",
         "viewAll": "عرض الكل",
-        "online": "متصل"
+        "online": "متصل",
+        "points": "نقاط",
+        "status": "الحالة"
     },
     "auth": {
         "login": "تسجيل الدخول",
@@ -236,5 +238,13 @@
         "about": "حول التطبيق",
         "help": "المساعدة والدعم",
         "legalTitle": "قانوني"
+    },
+    "search": {
+        "title": "البحث",
+        "placeholder": "عن ماذا تبحث؟",
+        "recentSearches": "البحث الأخير",
+        "recent1": "عسل",
+        "recent2": "قهوة",
+        "recent3": "ملابس"
     }
 }

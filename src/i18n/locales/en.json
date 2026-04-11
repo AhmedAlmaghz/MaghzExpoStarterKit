@@ -26,7 +26,9 @@
     "optional": "Optional",
     "seeMore": "See More",
     "viewAll": "View All",
-    "online": "Online"
+    "online": "Online",
+    "points": "Points",
+    "status": "Status"
   },
   "auth": {
     "login": "Login",
@@ -221,5 +223,13 @@
     "about": "About App",
     "help": "Help & Support",
     "legalTitle": "Legal"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "What are you looking for?",
+    "recentSearches": "Recent Searches",
+    "recent1": "Honey",
+    "recent2": "Coffee",
+    "recent3": "Clothing"
   }
 }

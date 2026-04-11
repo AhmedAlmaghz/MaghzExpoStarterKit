@@ -95,18 +95,16 @@ export default function MainLayout(): React.ReactElement {
                 {/* Hidden screens from the bottom bar */}
                 <Tabs.Screen name="about" options={{ href: null }} />
                 <Tabs.Screen name="help" options={{ href: null }} />
-                <Tabs.Screen name="admin/index" options={{ href: null }} />
+                <Tabs.Screen name="admin" options={{ href: null }} />
                 <Tabs.Screen name="settings/index" options={{ href: null }} />
                 <Tabs.Screen name="notifications/index" options={{ href: null }} />
                 
                 {/* Hide all other possible sub-routes if they show up */}
-                <Tabs.Screen name="admin/analytics" options={{ href: null }} />
-                <Tabs.Screen name="admin/audit-logs" options={{ href: null }} />
-                <Tabs.Screen name="admin/content" options={{ href: null }} />
-                <Tabs.Screen name="admin/users" options={{ href: null }} />
                 <Tabs.Screen name="settings/advanced" options={{ href: null }} />
                 <Tabs.Screen name="settings/notifications" options={{ href: null }} />
                 <Tabs.Screen name="settings/privacy" options={{ href: null }} />
+                <Tabs.Screen name="search" options={{ href: null }} />
+                <Tabs.Screen name="profile/edit" options={{ href: null }} />
             </Tabs>
         </>
     );
