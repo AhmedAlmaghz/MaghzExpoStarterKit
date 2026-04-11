@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Pressable } 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { useI18nStore } from '@/i18n/i18nStore';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -26,8 +27,9 @@ export function Header({
     onNotificationsPress,
     onUserPress,
 }: HeaderProps): React.ReactElement {
-    const { colors } = useTheme();
+    const { colors, mode, toggleMode } = useTheme();
     const { t } = useTranslation();
+    const { locale, setLocale } = useI18nStore();
     const { user, status, logout } = useAuth();
     const router = useRouter();
     const [menuVisible, setMenuVisible] = useState(false);
@@ -75,35 +77,39 @@ export function Header({
                 {/* Right: Actions */}
                 <View style={styles.rightSection}>
                     {showSearch && (
-                        <TouchableOpacity onPress={onSearchPress} style={styles.actionIcon}>
+                        <TouchableOpacity 
+                            onPress={onSearchPress || (() => router.push('/(main)/search'))} 
+                            style={styles.actionIcon}
+                        >
                             <Ionicons name="search-outline" size={22} color={colors.textSecondary} />
                         </TouchableOpacity>
                     )}
                     
                     {showNotifications && (
-                        <TouchableOpacity onPress={onNotificationsPress} style={styles.actionIcon}>
+                        <TouchableOpacity 
+                            onPress={onNotificationsPress || (() => router.push('/(main)/notifications'))} 
+                            style={styles.actionIcon}
+                        >
                             <Ionicons name="notifications-outline" size={22} color={colors.textSecondary} />
                             <View style={styles.badge} />
                         </TouchableOpacity>
                     )}
 
                     {showUser && (
-                        isAuthenticated ? (
-                            <TouchableOpacity onPress={toggleMenu} style={styles.profileButton}>
-                                <View style={[styles.avatar, { backgroundColor: colors.primary[100] }]}>
+                        <TouchableOpacity onPress={toggleMenu} style={styles.profileButton}>
+                            <View style={[styles.avatar, { 
+                                backgroundColor: isAuthenticated ? colors.primary[100] : colors.surface[200],
+                                borderColor: isAuthenticated ? colors.primary[500] : colors.border
+                            }]}>
+                                {isAuthenticated ? (
                                     <Text style={[styles.avatarText, { color: colors.primary[700] }]}>
                                         {user?.displayName?.charAt(0).toUpperCase() || 'U'}
                                     </Text>
-                                </View>
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity 
-                                style={[styles.loginBtn, { backgroundColor: colors.primary[500] }]}
-                                onPress={() => router.push('/(auth)/login')}
-                            >
-                                <Text style={styles.loginBtnText}>{t('auth.login')}</Text>
-                            </TouchableOpacity>
-                        )
+                                ) : (
+                                    <Ionicons name="person" size={20} color={colors.textSecondary} />
+                                )}
+                            </View>
+                        </TouchableOpacity>
                     )}
                 </View>
 
@@ -116,12 +122,50 @@ export function Header({
                 >
                     <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
                         <View style={[styles.menuContainer, { backgroundColor: colors.surface[50], borderColor: colors.border }]}>
-                            <View style={styles.menuHeader}>
-                                <Text style={[styles.menuUser, { color: colors.text }]}>{user?.displayName}</Text>
-                                <Text style={[styles.menuEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
-                            </View>
+                            {isAuthenticated ? (
+                                <View style={styles.menuHeader}>
+                                    <Text style={[styles.menuUser, { color: colors.text }]}>{user?.displayName}</Text>
+                                    <Text style={[styles.menuEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
+                                </View>
+                            ) : (
+                                <View style={styles.menuHeader}>
+                                    <Text style={[styles.menuUser, { color: colors.text }]}>{t('common.welcome') || 'Welcome, Guest'}</Text>
+                                    <TouchableOpacity 
+                                        onPress={() => { setMenuVisible(false); router.push('/(auth)/login'); }}
+                                        style={[styles.smallLoginBtn, { backgroundColor: colors.primary[500] }]}
+                                    >
+                                        <Text style={styles.smallLoginBtnText}>{t('auth.login')}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                            
                             <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
                             
+                            {/* Theme Toggle */}
+                            <TouchableOpacity style={styles.menuItem} onPress={toggleMode}>
+                                <Ionicons 
+                                    name={mode === 'dark' ? 'sunny-outline' : 'moon-outline'} 
+                                    size={18} 
+                                    color={colors.text} 
+                                />
+                                <Text style={[styles.menuItemText, { color: colors.text }]}>
+                                    {mode === 'dark' ? t('settings.lightMode') : t('settings.darkMode')}
+                                </Text>
+                            </TouchableOpacity>
+
+                            {/* Language Toggle */}
+                            <TouchableOpacity 
+                                style={styles.menuItem} 
+                                onPress={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                            >
+                                <Ionicons name="language-outline" size={18} color={colors.text} />
+                                <Text style={[styles.menuItemText, { color: colors.text }]}>
+                                    {locale === 'ar' ? 'English' : 'العربية'}
+                                </Text>
+                            </TouchableOpacity>
+
+                            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
+
                             <TouchableOpacity 
                                 style={styles.menuItem} 
                                 onPress={() => { setMenuVisible(false); router.push('/(main)/profile'); }}
@@ -130,20 +174,24 @@ export function Header({
                                 <Text style={[styles.menuItemText, { color: colors.text }]}>{t('nav.profile')}</Text>
                             </TouchableOpacity>
 
-                            <TouchableOpacity 
-                                style={styles.menuItem} 
-                                onPress={() => { setMenuVisible(false); router.push('/(main)/dashboard'); }}
-                            >
-                                <Ionicons name="grid-outline" size={18} color={colors.text} />
-                                <Text style={[styles.menuItemText, { color: colors.text }]}>{t('nav.dashboard')}</Text>
-                            </TouchableOpacity>
+                            {isAuthenticated && (
+                                <>
+                                    <TouchableOpacity 
+                                        style={styles.menuItem} 
+                                        onPress={() => { setMenuVisible(false); router.push('/(main)/dashboard'); }}
+                                    >
+                                        <Ionicons name="grid-outline" size={18} color={colors.text} />
+                                        <Text style={[styles.menuItemText, { color: colors.text }]}>{t('nav.dashboard')}</Text>
+                                    </TouchableOpacity>
 
-                            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
-                            
-                            <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-                                <Ionicons name="log-out-outline" size={18} color={colors.error[500]} />
-                                <Text style={[styles.menuItemText, { color: colors.error[500] }]}>{t('auth.logout')}</Text>
-                            </TouchableOpacity>
+                                    <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
+                                    
+                                    <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+                                        <Ionicons name="log-out-outline" size={18} color={colors.error[500]} />
+                                        <Text style={[styles.menuItemText, { color: colors.error[500] }]}>{t('auth.logout')}</Text>
+                                    </TouchableOpacity>
+                                </>
+                            )}
                         </View>
                     </Pressable>
                 </Modal>
@@ -247,7 +295,19 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        backgroundColor: 'rgba(0,0,0,0.1)',
+    },
+    smallLoginBtn: {
+        marginTop: 8,
+        paddingHorizontal: 15,
+        paddingVertical: 6,
+        borderRadius: 8,
+        alignSelf: 'flex-start',
+    },
+    smallLoginBtnText: {
+        color: 'white',
+        fontSize: 12,
+        fontWeight: '700',
     },
     menuContainer: {
         position: 'absolute',

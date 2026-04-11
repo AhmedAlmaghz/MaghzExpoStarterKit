@@ -11,10 +11,12 @@ import {
     Text,
     ScrollView,
     KeyboardAvoidingView,
+    TouchableOpacity,
     Platform,
     StyleSheet,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
@@ -26,6 +28,7 @@ export default function RegisterScreen(): React.ReactElement {
     const { t } = useTranslation();
     const { colors } = useTheme();
     const { register, isLoading, error, clearError } = useAuth();
+    const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -67,9 +70,17 @@ export default function RegisterScreen(): React.ReactElement {
                 keyboardShouldPersistTaps="handled"
             >
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: colors.text }]}>
-                        {t('auth.register')}
-                    </Text>
+                    <View style={styles.headerTop}>
+                        <Text style={[styles.title, { color: colors.text }]}>
+                            {t('auth.register')}
+                        </Text>
+                        <TouchableOpacity 
+                            onPress={() => router.push('/(main)')}
+                            style={[styles.homeButton, { backgroundColor: colors.surface[100] }]}
+                        >
+                            <Ionicons name="home-outline" size={20} color={colors.primary[500]} />
+                        </TouchableOpacity>
+                    </View>
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                         {t('common.appName')}
                     </Text>
@@ -165,6 +176,18 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     scrollContent: { flexGrow: 1, paddingHorizontal: 24, paddingTop: 60, paddingBottom: 24 },
     header: { marginBottom: 32 },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    homeButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     title: { fontSize: 32, fontWeight: '700' },
     subtitle: { fontSize: 16, marginTop: 4 },
     errorBanner: { padding: 12, borderRadius: 8, borderWidth: 1, marginBottom: 16 },

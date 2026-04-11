@@ -12,10 +12,12 @@ import {
     Text,
     ScrollView,
     KeyboardAvoidingView,
+    TouchableOpacity,
     Platform,
     StyleSheet,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
@@ -27,6 +29,7 @@ export default function LoginScreen(): React.ReactElement {
     const { t } = useTranslation();
     const { colors, isDarkMode } = useTheme();
     const { login, loginWithGoogle, loginWithApple, isLoading, error, clearError } = useAuth();
+    const router = useRouter();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -67,9 +70,17 @@ export default function LoginScreen(): React.ReactElement {
             >
                 {/* Header */}
                 <View style={styles.header}>
-                    <Text style={[styles.title, { color: colors.text }]}>
-                        {t('common.appName')}
-                    </Text>
+                    <View style={styles.headerTop}>
+                        <Text style={[styles.title, { color: colors.text }]}>
+                            {t('common.appName')}
+                        </Text>
+                        <TouchableOpacity 
+                            onPress={() => router.push('/(main)')}
+                            style={[styles.homeButton, { backgroundColor: colors.surface[100] }]}
+                        >
+                            <Ionicons name="home-outline" size={20} color={colors.primary[500]} />
+                        </TouchableOpacity>
+                    </View>
                     <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
                         {t('auth.login')}
                     </Text>
@@ -176,6 +187,18 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 32,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    homeButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         fontSize: 32,

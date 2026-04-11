@@ -10,18 +10,25 @@
 import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { activateKeepAwake } from 'expo-keep-awake';
+import { View } from 'react-native';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { I18nManager } from 'react-native';
 import { useI18nStore } from '@/i18n/i18nStore';
 import { useAuthStore } from '@/auth/authStore';
 import { sessionService } from '@/auth/services/sessionService';
+import { FloatingHomeButton } from '@/components/ui/FloatingHomeButton';
+import { WhatsAppFAB } from '@/components/ui/WhatsAppFAB';
+import { useTranslation } from '@/i18n/hooks/useTranslation';
 
 function RootLayoutNav(): React.ReactElement {
     const { isDarkMode, colors } = useTheme();
+    const { locale, isRTL } = useI18nStore();
+    const { t } = useTranslation();
 
     return (
-        <>
+        <View style={{ flex: 1 }} key={`${locale}-${isRTL}`}>
             <StatusBar style={isDarkMode ? 'light' : 'dark'} translucent={true} />
             <Stack
                 screenOptions={{
@@ -36,10 +43,13 @@ function RootLayoutNav(): React.ReactElement {
                     },
                 }}
             >
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
                 <Stack.Screen name="(main)" options={{ headerShown: false }} />
+                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+                <Stack.Screen name="index" options={{ headerShown: false }} />
             </Stack>
-        </>
+            <FloatingHomeButton />
+            <WhatsAppFAB />
+        </View>
     );
 }
 
@@ -57,6 +67,15 @@ function AppInitializer(): null {
 
     useEffect(() => {
         const initialize = async () => {
+            // Suppress "Unable to activate keep awake" warning in some dev environments
+            try {
+                if (__DEV__) {
+                    await activateKeepAwake();
+                }
+            } catch (e) {
+                console.log('[Dev] KeepAlive not supported in this environment');
+            }
+
             // Initialize i18n
             await initializeI18n();
 
@@ -95,16 +114,23 @@ function AppInitializer(): null {
         if (status === 'authenticated') {
             // Redirect to (main) if we are in auth group OR at the root path
             if (inAuthGroup || segments.length === 0 || (segments.length === 1 && segments[0] === 'index')) {
-                console.log('[Auth Guard] Authenticated, redirecting to (main)...');
-                // Use a small timeout to ensure router is ready
+                console.log('[Auth Guard] User authenticated. Redirecting to home...');
                 setTimeout(() => {
                   router.replace('/(main)');
-                }, 1);
+                }, 10);
+            }
+        } else if (status === 'unauthenticated') {
+            // If the user lands on "/" or "index", force them to the home screen
+            // Since (main) is the default for apps, we handle this here
+            const atRoot = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
+            
+            if (atRoot) {
+                console.log('[Auth Guard] Guest user landed at root. Redirecting to home...');
+                setTimeout(() => {
+                  router.replace('/(main)');
+                }, 10);
             }
         }
-        // NOTE: We removed the automatic redirect to login for unauthenticated users here
-        // to allow public access to (main) routes. 
-        // Protected routes will handle their own redirection using useRequireAuth().
     }, [status, segments]);
 
     return null;
