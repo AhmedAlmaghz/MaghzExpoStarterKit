@@ -56,7 +56,11 @@ export const TABLES = {
   ROLES: 'roles',
   PERMISSIONS: 'permissions',
   ROLE_PERMISSIONS: 'role_permissions',
-  USER_ROLES: 'user_roles',
+  ANALYTICS_EVENTS: 'analytics_events',
+  PUBLIC_PAGES: 'public_pages',
+  SYSTEM_SETTINGS: 'system_settings',
+  USER_ADDRESSES: 'user_addresses',
+  USER_PAYMENT_METHODS: 'user_payment_methods',
 } as const;
 
 /**

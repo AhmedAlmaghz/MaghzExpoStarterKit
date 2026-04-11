@@ -128,19 +128,40 @@ export const adminService = {
     },
 
     /**
-     * Update user status or role
+     * Update user role or status
      */
     async updateUser(userId: string, updates: { role?: string; status?: string }) {
-        const { data, error } = await supabase
-            .from(TABLES.USERS)
-            .update({
-                ...updates,
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', userId)
-            .select();
+        try {
+            const { data, error } = await supabase
+                .from(TABLES.USERS)
+                .update({ ...updates, updated_at: new Date().toISOString() })
+                .eq('id', userId)
+                .select()
+                .single();
 
-        if (error) throw error;
-        return data;
+            if (error) throw error;
+            return data;
+        } catch (error) {
+            console.error('[AdminService] Failed to update user:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Delete a user record
+     */
+    async deleteUser(userId: string) {
+        try {
+            const { error } = await supabase
+                .from(TABLES.USERS)
+                .delete()
+                .eq('id', userId);
+
+            if (error) throw error;
+            return true;
+        } catch (error) {
+            console.error('[AdminService] Failed to delete user:', error);
+            throw error;
+        }
     }
 };

@@ -10,7 +10,7 @@
 import React, { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { activateKeepAwakeAsync } from 'expo-keep-awake';
+import { useKeepAwake } from 'expo-keep-awake';
 import { View, ActivityIndicator } from 'react-native';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
@@ -64,6 +64,9 @@ function AppInitializer(): null {
     const initializeAuth = useAuthStore((state) => state.refreshSession);
     const status = useAuthStore((state) => state.status);
     
+    // Maintain screen awake state in dev mode safely
+    useKeepAwake();
+    
     const [isReady, setIsReady] = React.useState(false);
     
     const segments = useSegments();
@@ -72,12 +75,6 @@ function AppInitializer(): null {
 
     useEffect(() => {
         const initialize = async () => {
-            try {
-                // Use the modern async version to prevent warnings
-                await activateKeepAwakeAsync();
-            } catch (e) {
-                console.log('[Dev] KeepAlive not supported');
-            }
 
             try {
                 // Initialize all persistent stores in parallel

@@ -57,6 +57,8 @@ interface InputProps {
     onFocus?: () => void;
     /** Blur handler */
     onBlur?: () => void;
+    /** Force dark mode styling */
+    dark?: boolean;
 }
 
 /**
@@ -82,18 +84,24 @@ export function Input({
     inputStyle,
     onFocus,
     onBlur,
+    dark = false,
 }: InputProps): React.ReactElement {
     const { colors } = useTheme();
 
     const getBorderColor = (): string => {
         if (error) return colors.error[500];
+        if (dark) return '#334155';
         return colors.inputBorder;
     };
+
+    const textColor = dark ? '#f8fafc' : colors.text;
+    const bgColor = dark ? '#0f172a' : (disabled ? colors.surfaceVariant : colors.inputBackground);
+    const placeholderColor = dark ? '#64748b' : colors.textTertiary;
 
     return (
         <View style={[styles.container, containerStyle]}>
             {label && (
-                <Text style={[styles.label, { color: colors.text }]}>
+                <Text style={[styles.label, { color: textColor }]}>
                     {label}
                 </Text>
             )}
@@ -101,7 +109,7 @@ export function Input({
                 style={[
                     styles.inputWrapper,
                     {
-                        backgroundColor: disabled ? colors.surfaceVariant : colors.inputBackground,
+                        backgroundColor: bgColor,
                         borderColor: getBorderColor(),
                     },
                     error && styles.inputError,
@@ -112,7 +120,7 @@ export function Input({
                     value={value}
                     onChangeText={onChangeText}
                     placeholder={placeholder}
-                    placeholderTextColor={colors.textTertiary}
+                    placeholderTextColor={placeholderColor}
                     secureTextEntry={!!secureTextEntry}
                     editable={!disabled}
                     keyboardType={keyboardType}
@@ -122,7 +130,7 @@ export function Input({
                     numberOfLines={numberOfLines}
                     style={[
                         styles.input,
-                        { color: colors.text },
+                        { color: textColor },
                         leftIcon ? styles.inputWithLeftIcon : undefined,
                         rightIcon ? styles.inputWithRightIcon : undefined,
                         multiline ? styles.multilineInput : undefined,

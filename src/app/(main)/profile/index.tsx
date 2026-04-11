@@ -99,7 +99,7 @@ export default function ProfileScreen() {
 
                         <TouchableOpacity 
                             style={styles.settingsRow}
-                            onPress={() => { /* TODO: Add Addresses screen */ }}
+                            onPress={() => router.push('/(main)/profile/addresses' as any)}
                         >
                             <Ionicons name="location-outline" size={22} color={colors.primary[500]} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.addresses') || 'My Addresses'}</Text>
@@ -110,7 +110,7 @@ export default function ProfileScreen() {
 
                         <TouchableOpacity 
                             style={styles.settingsRow}
-                            onPress={() => { /* TODO: Add Payments screen */ }}
+                            onPress={() => router.push('/(main)/profile/payments' as any)}
                         >
                             <Ionicons name="card-outline" size={22} color={colors.primary[500]} />
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.payments') || 'Payment Methods'}</Text>
