@@ -58,20 +58,20 @@ export default function MainLayout(): React.ReactElement {
                 }}
             />
             <Tabs.Screen
+                name="pages"
+                options={{
+                    title: t('nav.pages'),
+                    tabBarIcon: ({ color, focused }) => (
+                        <TabIcon name="planet" color={color} focused={focused} />
+                    ),
+                }}
+            />
+            <Tabs.Screen
                 name="dashboard"
                 options={{
                     title: t('nav.dashboard'),
                     tabBarIcon: ({ color, focused }) => (
                         <TabIcon name="grid" color={color} focused={focused} />
-                    ),
-                }}
-            />
-            <Tabs.Screen
-                name="pages"
-                options={{
-                    title: t('nav.about'),
-                    tabBarIcon: ({ color, focused }) => (
-                        <TabIcon name="list" color={color} focused={focused} />
                     ),
                 }}
             />
@@ -84,6 +84,21 @@ export default function MainLayout(): React.ReactElement {
                     ),
                 }}
             />
+            {/* Hidden screens from the bottom bar */}
+            <Tabs.Screen name="about" options={{ href: null }} />
+            <Tabs.Screen name="help" options={{ href: null }} />
+            <Tabs.Screen name="admin/index" options={{ href: null }} />
+            <Tabs.Screen name="settings/index" options={{ href: null }} />
+            <Tabs.Screen name="notifications/index" options={{ href: null }} />
+            
+            {/* Hide all other possible sub-routes if they show up */}
+            <Tabs.Screen name="admin/analytics" options={{ href: null }} />
+            <Tabs.Screen name="admin/audit-logs" options={{ href: null }} />
+            <Tabs.Screen name="admin/content" options={{ href: null }} />
+            <Tabs.Screen name="admin/users" options={{ href: null }} />
+            <Tabs.Screen name="settings/advanced" options={{ href: null }} />
+            <Tabs.Screen name="settings/notifications" options={{ href: null }} />
+            <Tabs.Screen name="settings/privacy" options={{ href: null }} />
         </Tabs>
     );
 }

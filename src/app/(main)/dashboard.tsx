@@ -7,7 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Card } from '@/components/ui/Card';
 import { Header } from '@/components/layout/Header';
 
+import { useRequireAuth } from '@/auth/hooks/useRequireAuth';
+
 export default function DashboardScreen(): React.ReactElement {
+    useRequireAuth();
     const { user, isAdmin, isSuperAdmin } = useAuth();
     const { colors } = useTheme();
     const { t } = useTranslation();

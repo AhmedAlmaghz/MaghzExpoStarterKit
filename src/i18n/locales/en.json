@@ -23,7 +23,10 @@
     "or": "or",
     "and": "and",
     "required": "Required",
-    "optional": "Optional"
+    "optional": "Optional",
+    "seeMore": "See More",
+    "viewAll": "View All",
+    "online": "Online"
   },
   "auth": {
     "login": "Login",
@@ -75,7 +78,8 @@
     "profile": "Profile",
     "settings": "Settings",
     "notifications": "Notifications",
-    "pages": "Pages",
+    "home": "Home",
+    "pages": "Public Pages",
     "admin": "Admin"
   },
   "profile": {
@@ -100,7 +104,14 @@
     "preferNotToSay": "Prefer not to say",
     "saveSuccess": "Profile updated successfully",
     "deleteAccount": "Delete Account",
-    "deleteConfirm": "Are you sure you want to delete your account? This action cannot be undone."
+    "deleteConfirm": "Are you sure you want to delete your account? This action cannot be undone.",
+    "orders": "Orders",
+    "reviews": "Reviews",
+    "points": "Points",
+    "settings": "Account Settings",
+    "personalInfo": "Personal Information",
+    "addresses": "My Addresses",
+    "payments": "Payment Methods"
   },
   "settings": {
     "title": "Settings",
@@ -192,5 +203,23 @@
     "reportBug": "Report a Bug",
     "featureRequest": "Request a Feature",
     "searchHelp": "Search for help..."
+  },
+  "home": {
+    "sections": {
+      "categories": "Categories",
+      "trending": "Trending Now"
+    },
+    "categories": {
+      "tech": "Tech",
+      "fashion": "Fashion",
+      "lifestyle": "Lifestyle"
+    }
+  },
+  "pages": {
+    "title": "Discovery",
+    "infoTitle": "Information",
+    "about": "About App",
+    "help": "Help & Support",
+    "legalTitle": "Legal"
   }
 }

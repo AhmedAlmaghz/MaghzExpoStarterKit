@@ -23,7 +23,10 @@
         "or": "أو",
         "and": "و",
         "required": "مطلوب",
-        "optional": "اختياري"
+        "optional": "اختياري",
+        "seeMore": "رؤية المزيد",
+        "viewAll": "عرض الكل",
+        "online": "متصل"
     },
     "auth": {
         "login": "تسجيل الدخول",
@@ -91,7 +94,7 @@
         "profile": "حسابي",
         "settings": "الإعدادات",
         "notifications": "الإشعارات",
-        "pages": "الصفحات",
+        "pages": "الصفحات العامة",
         "admin": "الإدارة"
     },
     "profile": {
@@ -116,7 +119,14 @@
         "preferNotToSay": "أفضل عدم القول",
         "saveSuccess": "تم تحديث الملف الشخصي بنجاح",
         "deleteAccount": "حذف الحساب",
-        "deleteConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء."
+        "deleteConfirm": "هل أنت متأكد من حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء.",
+        "orders": "الطلبات",
+        "reviews": "التقييمات",
+        "points": "النقاط",
+        "settings": "إعدادات الحساب",
+        "personalInfo": "المعلومات الشخصية",
+        "addresses": "عناويني",
+        "payments": "طرق الدفع"
     },
     "settings": {
         "title": "الإعدادات",
@@ -208,5 +218,23 @@
         "reportBug": "الإبلاغ عن خطأ",
         "featureRequest": "طلب ميزة",
         "searchHelp": "ابحث عن مساعدة..."
+    },
+    "home": {
+        "sections": {
+            "categories": "التصنيفات",
+            "trending": "الرائج الآن"
+        },
+        "categories": {
+            "tech": "تقنية",
+            "fashion": "أزياء",
+            "lifestyle": "نمط حياة"
+        }
+    },
+    "pages": {
+        "title": "اكتشف",
+        "infoTitle": "معلومات",
+        "about": "حول التطبيق",
+        "help": "المساعدة والدعم",
+        "legalTitle": "قانوني"
     }
 }

@@ -101,15 +101,10 @@ function AppInitializer(): null {
                   router.replace('/(main)');
                 }, 1);
             }
-        } else if (status === 'unauthenticated') {
-            // Redirect to login if we are NOT in auth group
-            if (!inAuthGroup) {
-                console.log('[Auth Guard] Unauthenticated, redirecting to (auth)/login...');
-                setTimeout(() => {
-                  router.replace('/(auth)/login');
-                }, 1);
-            }
         }
+        // NOTE: We removed the automatic redirect to login for unauthenticated users here
+        // to allow public access to (main) routes. 
+        // Protected routes will handle their own redirection using useRequireAuth().
     }, [status, segments]);
 
     return null;

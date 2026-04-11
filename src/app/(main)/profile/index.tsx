@@ -7,7 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Header } from '@/components/layout/Header';
 import { Card } from '@/components/ui/Card';
 
+import { useRequireAuth } from '@/auth/hooks/useRequireAuth';
+
 export default function ProfileScreen() {
+    useRequireAuth();
     const { user, logout } = useAuth();
     const { colors } = useTheme();
     const { t } = useTranslation();
