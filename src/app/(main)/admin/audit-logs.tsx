@@ -7,7 +7,8 @@
  * @module app/(main)/admin/audit-logs
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, RefreshControl } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { adminService } from '@/lib/services/adminService';
@@ -40,11 +41,7 @@ export default function AdminAuditLogsScreen(): React.ReactElement {
     }, [fetchLogs]);
 
     if (loading && !refreshing) {
-        return (
-            <View style={[styles.loading, { backgroundColor: '#0f172a' }]}>
-                <ActivityIndicator size="large" color="#38bdf8" />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     const getLogIcon = (action: string) => {
@@ -63,7 +60,7 @@ export default function AdminAuditLogsScreen(): React.ReactElement {
 
     return (
         <View style={[styles.container, { backgroundColor: '#0f172a' }]}>
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchLogs(); }} tintColor="#38bdf8" />}
             >

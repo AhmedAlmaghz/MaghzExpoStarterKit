@@ -6,10 +6,11 @@ import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '@/components/layout/Header';
 import { Card } from '@/components/ui/Card';
+import { Loading } from '@/components/ui/Loading';
 
 import { useRequireAuth } from '@/auth/hooks/useRequireAuth';
 import { userService } from '@/lib/services/userService';
-import { ActivityIndicator, RefreshControl } from 'react-native';
+import { RefreshControl } from 'react-native';
 import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
@@ -41,17 +42,13 @@ export default function ProfileScreen() {
     }, [fetchStats]);
 
     if (loading && !refreshing) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <Header title={t('nav.profile')} />
-            <ScrollView 
+            <ScrollView
                 style={styles.container}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchStats(); }} tintColor={colors.primary[500]} />}
             >
@@ -63,7 +60,7 @@ export default function ProfileScreen() {
                     </View>
                     <Text style={[styles.userName, { color: colors.text }]}>{user?.displayName}</Text>
                     <Text style={[styles.userEmail, { color: colors.textSecondary }]}>{user?.email}</Text>
-                    
+
                     <View style={styles.statsContainer}>
                         <View style={styles.statItem}>
                             <Text style={[styles.statValue, { color: colors.text }]}>12</Text>
@@ -84,9 +81,9 @@ export default function ProfileScreen() {
 
                 <View style={styles.content}>
                     <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('profile.settings') || 'Account Settings'}</Text>
-                    
+
                     <Card style={styles.settingsCard}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.settingsRow}
                             onPress={() => router.push('/(main)/profile/edit' as any)}
                         >
@@ -94,10 +91,10 @@ export default function ProfileScreen() {
                             <Text style={[styles.settingsLabel, { color: colors.text }]}>{t('profile.personalInfo') || 'Personal Information'}</Text>
                             <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
                         </TouchableOpacity>
-                        
+
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.settingsRow}
                             onPress={() => router.push('/(main)/profile/addresses' as any)}
                         >
@@ -108,7 +105,7 @@ export default function ProfileScreen() {
 
                         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.settingsRow}
                             onPress={() => router.push('/(main)/profile/payments' as any)}
                         >
@@ -118,7 +115,7 @@ export default function ProfileScreen() {
                         </TouchableOpacity>
                     </Card>
 
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[styles.logoutBtn, { borderColor: colors.error[500] }]}
                         onPress={logout}
                     >

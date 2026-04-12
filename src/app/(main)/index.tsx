@@ -33,7 +33,7 @@ export default function HomeScreen(): React.ReactElement {
     };
 
     if (isLoading) {
-        return <Loading message={t('common.loading')} />;
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     const categories = [

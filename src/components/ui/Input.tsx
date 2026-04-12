@@ -49,6 +49,8 @@ interface InputProps {
     multiline?: boolean;
     /** Number of lines for multiline */
     numberOfLines?: number;
+    /** Maximum length of input */
+    maxLength?: number;
     /** Custom container style */
     containerStyle?: ViewStyle;
     /** Custom input style */
@@ -80,6 +82,7 @@ export function Input({
     onRightIconPress,
     multiline = false,
     numberOfLines = 1,
+    maxLength,
     containerStyle,
     inputStyle,
     onFocus,
@@ -128,6 +131,7 @@ export function Input({
                     autoComplete={autoComplete}
                     multiline={!!multiline}
                     numberOfLines={numberOfLines}
+                    maxLength={maxLength}
                     style={[
                         styles.input,
                         { color: textColor },

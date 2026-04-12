@@ -21,7 +21,7 @@ export default function NotificationsScreen(): React.ReactElement {
     const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications(user?.id);
 
     if (isLoading) {
-        return <Loading message={t('common.loading')} />;
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     return (

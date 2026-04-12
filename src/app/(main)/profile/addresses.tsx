@@ -7,7 +7,8 @@
  * @module app/(main)/profile/addresses
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { Card, Modal, Button, Input } from '@/components/ui';
@@ -80,11 +81,7 @@ export default function AddressesScreen(): React.ReactElement {
     };
 
     if (loading && !refreshing) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (
@@ -184,5 +181,6 @@ const styles = StyleSheet.create({
     details: { fontSize: 14, lineHeight: 20 },
     empty: { textAlign: 'center', marginTop: 100, fontSize: 16 },
     modalBody: { paddingBottom: 10 },
-    defaultRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 15 }
+    defaultRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 15 },
+    defaultLabel: { fontSize: 14, fontWeight: '500' }
 });

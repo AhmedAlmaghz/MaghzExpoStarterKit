@@ -7,7 +7,8 @@
  * @module app/(main)/admin/roles
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { Card, Modal, Button, Input } from '@/components/ui';
@@ -64,11 +65,7 @@ export default function RolesManagementScreen(): React.ReactElement {
     };
 
     if (loading && !refreshing) {
-        return (
-            <View style={[styles.loading, { backgroundColor: '#0f172a' }]}>
-                <ActivityIndicator size="large" color="#38bdf8" />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (

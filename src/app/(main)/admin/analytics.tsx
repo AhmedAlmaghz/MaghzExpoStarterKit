@@ -7,7 +7,8 @@
  * @module app/(main)/admin/analytics
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, RefreshControl, Dimensions } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, RefreshControl, Dimensions } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { adminService } from '@/lib/services/adminService';
@@ -50,11 +51,7 @@ export default function AdminAnalyticsScreen(): React.ReactElement {
     }, [fetchAnalytics]);
 
     if (loading && !refreshing) {
-        return (
-            <View style={[styles.loading, { backgroundColor: '#0f172a' }]}>
-                <ActivityIndicator size="large" color="#38bdf8" />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     const totalUsers = growthData.reduce((sum, item) => sum + item.count, 0);

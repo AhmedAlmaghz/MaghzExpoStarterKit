@@ -7,11 +7,12 @@
  * @see https://docs.expo.dev/router/create-layouts/
  */
 // import '../global.css'; // Enable when NativeWind metro config is set up
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useKeepAwake } from 'expo-keep-awake';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useThemeStore } from '@/theme/themeStore';
@@ -22,6 +23,13 @@ import { sessionService } from '@/auth/services/sessionService';
 import { FloatingHomeButton } from '@/components/ui/FloatingHomeButton';
 import { WhatsAppFAB } from '@/components/ui/WhatsAppFAB';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
+import { Loading } from '@/components/ui/Loading';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync().catch(() => {
+    // If preventAutoHideAsync fails, the splash screen is already hidden
+});
 
 function RootLayoutNav(): React.ReactElement {
     const { isDarkMode, colors } = useTheme();
@@ -58,24 +66,33 @@ function RootLayoutNav(): React.ReactElement {
  * App initializer component
  * Handles theme, i18n, and auth initialization
  */
-function AppInitializer(): null {
+function AppInitializer(): React.ReactElement | null {
     const initializeI18n = useI18nStore((state) => state.initialize);
     const initializeTheme = useThemeStore((state) => state.initialize);
     const initializeAuth = useAuthStore((state) => state.refreshSession);
     const status = useAuthStore((state) => state.status);
-    
+
     // Maintain screen awake state in dev mode safely
     useKeepAwake();
-    
+
     const [isReady, setIsReady] = React.useState(false);
-    
+
     const segments = useSegments();
     const router = useRouter();
     const { colors } = useTheme();
+    const { t } = useTranslation();
+
+    const hideSplashScreen = useCallback(async () => {
+        try {
+            await SplashScreen.hideAsync();
+        } catch (e) {
+            // Splash screen might already be hidden
+            console.log('[Splash] Already hidden or error:', e);
+        }
+    }, []);
 
     useEffect(() => {
         const initialize = async () => {
-
             try {
                 // Initialize all persistent stores in parallel
                 await Promise.all([
@@ -97,10 +114,12 @@ function AppInitializer(): null {
                 console.error('[Initializer] Critical error during startup:', error);
             } finally {
                 setIsReady(true);
+                // Hide splash screen after initialization is complete
+                await hideSplashScreen();
             }
         };
         initialize();
-    }, [initializeI18n, initializeTheme, initializeAuth]);
+    }, [initializeI18n, initializeTheme, initializeAuth, hideSplashScreen]);
 
     useEffect(() => {
         // Debugging logs to see state changes in terminal
@@ -117,32 +136,28 @@ function AppInitializer(): null {
 
         if (status === 'authenticated') {
             // Redirect to (main) if we are in auth group OR at the root path
-            if (inAuthGroup || segments.length === 0 || (segments.length === 1 && segments[0] === 'index')) {
+            if (inAuthGroup || segments.length as number === 0 || ((segments.length as number) === 1 && segments[0] === 'index')) {
                 console.log('[Auth Guard] User authenticated. Redirecting to home...');
                 setTimeout(() => {
-                  router.replace('/(main)');
+                    router.replace('/(main)');
                 }, 10);
             }
         } else if (status === 'unauthenticated') {
             // If the user lands on "/" or "index", force them to the home screen
             // Since (main) is the default for apps, we handle this here
-            const atRoot = segments.length === 0 || (segments.length === 1 && segments[0] === 'index');
-            
+            const atRoot = segments.length as number === 0 || ((segments.length as number) === 1 && segments[0] === 'index');
+
             if (atRoot) {
                 console.log('[Auth Guard] Guest user landed at root. Redirecting to home...');
                 setTimeout(() => {
-                  router.replace('/(main)');
+                    router.replace('/(main)');
                 }, 10);
             }
         }
     }, [status, segments, isReady]);
 
     if (!isReady) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     return null;
@@ -150,9 +165,11 @@ function AppInitializer(): null {
 
 export default function RootLayout(): React.ReactElement {
     return (
-        <ThemeProvider>
-            <AppInitializer />
-            <RootLayoutNav />
-        </ThemeProvider>
+        <ErrorBoundary>
+            <ThemeProvider>
+                <AppInitializer />
+                <RootLayoutNav />
+            </ThemeProvider>
+        </ErrorBoundary>
     );
 }

@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { useRequireRole } from '@/auth/hooks/useRequireRole';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
-import { View, ActivityIndicator } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 
 /**
  * Admin Layout
@@ -18,11 +18,7 @@ export default function AdminLayout() {
 
     // While checking permissions or loading auth state
     if (status === 'loading') {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     return (
@@ -39,23 +35,23 @@ export default function AdminLayout() {
                 headerShadowVisible: false,
             }}
         >
-            <Stack.Screen 
-                name="index" 
-                options={{ 
-                    title: t('admin.title') || 'Admin Panel' 
-                }} 
+            <Stack.Screen
+                name="index"
+                options={{
+                    title: t('admin.title') || 'Admin Panel'
+                }}
             />
-            <Stack.Screen 
-                name="users" 
-                options={{ 
-                    title: t('admin.userManagement') || 'Users' 
-                }} 
+            <Stack.Screen
+                name="users"
+                options={{
+                    title: t('admin.userManagement') || 'Users'
+                }}
             />
-            <Stack.Screen 
-                name="analytics" 
-                options={{ 
-                    title: t('admin.analytics') || 'Analytics' 
-                }} 
+            <Stack.Screen
+                name="analytics"
+                options={{
+                    title: t('admin.analytics') || 'Analytics'
+                }}
             />
         </Stack>
     );

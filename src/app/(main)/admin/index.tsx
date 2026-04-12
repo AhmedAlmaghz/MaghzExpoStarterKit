@@ -7,7 +7,8 @@
  * @module app/(main)/admin/index
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
@@ -46,16 +47,12 @@ export default function AdminIndexScreen(): React.ReactElement {
     }, [fetchAdminStats]);
 
     if (loading && !refreshing) {
-        return (
-            <View style={[styles.loading, { backgroundColor: '#0f172a' }]}>
-                <ActivityIndicator size="large" color="#38bdf8" />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (
         <View style={[styles.container, { backgroundColor: '#0f172a' }]}>
-            <ScrollView 
+            <ScrollView
                 style={styles.scrollView}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchAdminStats(); }} tintColor="#38bdf8" />}
             >
@@ -86,16 +83,16 @@ export default function AdminIndexScreen(): React.ReactElement {
                     {/* Category 1: Identity & Access */}
                     <Text style={styles.sectionTitle}>Identity & Access Control</Text>
                     <View style={styles.toolGrid}>
-                        <ToolCard 
-                            title={t('admin.userManagement')} 
-                            icon="people" 
+                        <ToolCard
+                            title={t('admin.userManagement')}
+                            icon="people"
                             desc="Manage user cycles & status"
                             onPress={() => router.push('/(main)/admin/users')}
                             color="#38bdf8"
                         />
-                        <ToolCard 
-                            title={t('admin.manageRoles') || 'Roles & Permissions'} 
-                            icon="shield-checkmark" 
+                        <ToolCard
+                            title={t('admin.manageRoles') || 'Roles & Permissions'}
+                            icon="shield-checkmark"
                             desc="RBAC hierarchy control"
                             onPress={() => router.push('/(main)/admin/roles')}
                             color="#a855f7"
@@ -105,16 +102,16 @@ export default function AdminIndexScreen(): React.ReactElement {
                     {/* Category 2: Insights & Monitoring */}
                     <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Insights & Monitoring</Text>
                     <View style={styles.toolGrid}>
-                        <ToolCard 
-                            title={t('admin.analytics')} 
-                            icon="podium" 
+                        <ToolCard
+                            title={t('admin.analytics')}
+                            icon="podium"
                             desc="Registration trends & growth"
                             onPress={() => router.push('/(main)/admin/analytics')}
                             color="#22c55e"
                         />
-                        <ToolCard 
-                            title={t('admin.auditLogs')} 
-                            icon="document-text" 
+                        <ToolCard
+                            title={t('admin.auditLogs')}
+                            icon="document-text"
                             desc="Full traceability logs"
                             onPress={() => router.push('/(main)/admin/audit-logs')}
                             color="#f59e0b"
@@ -124,16 +121,16 @@ export default function AdminIndexScreen(): React.ReactElement {
                     {/* Category 3: Platform Assets */}
                     <Text style={[styles.sectionTitle, { marginTop: 30 }]}>Platform Assets</Text>
                     <View style={styles.toolGrid}>
-                        <ToolCard 
-                            title={t('admin.contentManagement')} 
-                            icon="newspaper" 
+                        <ToolCard
+                            title={t('admin.contentManagement')}
+                            icon="newspaper"
                             desc="Manage public legal pages"
                             onPress={() => router.push('/(main)/admin/content')}
                             color="#06b6d4"
                         />
-                        <ToolCard 
-                            title="Global Settings" 
-                            icon="cog" 
+                        <ToolCard
+                            title="Global Settings"
+                            icon="cog"
                             desc="System-wide configuration"
                             onPress={() => Alert.alert('Coming Soon', 'Global configuration is being finalized.')}
                             color="#94a3b8"

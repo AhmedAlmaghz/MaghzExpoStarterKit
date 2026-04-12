@@ -7,7 +7,8 @@
  * @module app/(main)/profile/payments
  */
 import React from 'react';
-import { View, Text, ScrollView, StyleSheet, ActivityIndicator, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, RefreshControl, Alert } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { Card, Modal, Button, Input } from '@/components/ui';
@@ -72,30 +73,28 @@ export default function PaymentsScreen(): React.ReactElement {
     const handleDelete = (id: string) => {
         Alert.alert('Remove Card', 'Are you sure?', [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Remove', style: 'destructive', onPress: async () => {
-                await userService.deletePaymentMethod(id);
-                fetchMethods();
-            }}
+            {
+                text: 'Remove', style: 'destructive', onPress: async () => {
+                    await userService.deletePaymentMethod(id);
+                    fetchMethods();
+                }
+            }
         ]);
     };
 
     if (loading && !refreshing) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
-            <ScrollView 
+            <ScrollView
                 style={styles.container}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchMethods(); }} tintColor={colors.primary[500]} />}
             >
                 <View style={styles.headerRow}>
                     <Text style={[styles.pageTitle, { color: colors.text }]}>{t('profile.payments') || 'Payment Methods'}</Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                         style={[styles.addBtn, { backgroundColor: colors.primary[500] }]}
                         onPress={() => setIsModalVisible(true)}
                     >
@@ -127,19 +126,19 @@ export default function PaymentsScreen(): React.ReactElement {
                 )}
             </ScrollView>
 
-            <Modal 
-                visible={isModalVisible} 
+            <Modal
+                visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}
                 title="Add Payment Method"
             >
                 <View style={styles.modalBody}>
-                    <Input 
+                    <Input
                         label="Card Provider"
                         placeholder="e.g. Visa, MasterCard"
                         value={provider}
                         onChangeText={setProvider}
                     />
-                    <Input 
+                    <Input
                         label="Last 4 Digits"
                         placeholder="1234"
                         value={lastFour}
@@ -148,20 +147,20 @@ export default function PaymentsScreen(): React.ReactElement {
                         maxLength={4}
                     />
                     <View style={styles.typeRow}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[styles.typeBtn, { borderColor: type === 'card' ? colors.primary[500] : colors.border }]}
                             onPress={() => setType('card')}
                         >
                             <Text style={{ color: type === 'card' ? colors.primary[700] : colors.textSecondary }}>Card</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={[styles.typeBtn, { borderColor: type === 'wallet' ? colors.primary[500] : colors.border }]}
                             onPress={() => setType('wallet')}
                         >
                             <Text style={{ color: type === 'wallet' ? colors.primary[700] : colors.textSecondary }}>Wallet</Text>
                         </TouchableOpacity>
                     </View>
-                    <Button 
+                    <Button
                         title="Link Method"
                         onPress={handleAddMethod}
                         loading={isSaving}

@@ -1,18 +1,18 @@
 /**
  * Edit Profile Screen
- * 
+ *
  * Comprehensive form for editing user profile information, synced with the database.
  * Supports Bio, Gender, Location, and Contact details.
- * 
+ *
  * @module app/(main)/profile/edit
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useTheme } from '@/theme/hooks/useTheme';
-import { Button, Input, Card } from '@/components/ui';
+import { Button, Input, Card, Loading } from '@/components/ui';
 import { userService } from '@/lib/services/userService';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -90,11 +90,7 @@ export default function EditProfileScreen(): React.ReactElement {
     };
 
     if (loading) {
-        return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading message={t('common.loading')} fullScreen />;
     }
 
     return (
@@ -112,7 +108,7 @@ export default function EditProfileScreen(): React.ReactElement {
 
             <View style={styles.form}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('profile.personalInfo')}</Text>
-                
+
                 <Input
                     label={t('auth.displayName')}
                     value={displayName}
@@ -131,11 +127,11 @@ export default function EditProfileScreen(): React.ReactElement {
                 <Text style={[styles.label, { color: colors.textSecondary }]}>{t('profile.gender')}</Text>
                 <View style={styles.genderRow}>
                     {['male', 'female', 'other'].map((g) => (
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             key={g}
                             style={[
-                                styles.genderBtn, 
-                                { 
+                                styles.genderBtn,
+                                {
                                     borderColor: gender === g ? colors.primary[500] : colors.border,
                                     backgroundColor: gender === g ? colors.primary[50] : 'transparent'
                                 }
@@ -166,7 +162,7 @@ export default function EditProfileScreen(): React.ReactElement {
                 />
 
                 <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 25 }]}>{t('profile.address')}</Text>
-                
+
                 <Input
                     label={t('profile.address')}
                     value={address}
@@ -213,7 +209,7 @@ const styles = StyleSheet.create({
     header: { alignItems: 'center', paddingVertical: 30 },
     avatarContainer: { position: 'relative' },
     avatar: { width: 120, height: 120, borderRadius: 60, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
-    editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderSize: 3, borderColor: '#fff' },
+    editAvatarBtn: { position: 'absolute', bottom: 0, right: 0, width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: '#fff' },
     form: { paddingHorizontal: 20, paddingBottom: 50 },
     sectionTitle: { fontSize: 18, fontWeight: '700', marginBottom: 20 },
     label: { fontSize: 14, fontWeight: '600', marginBottom: 10, marginTop: 15 },

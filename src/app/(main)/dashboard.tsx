@@ -7,7 +7,8 @@
  * @module app/(main)/dashboard
  */
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl } from 'react-native';
+import { Loading } from '@/components/ui/Loading';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
@@ -45,11 +46,7 @@ export default function DashboardScreen(): React.ReactElement {
     }, [fetchData]);
 
     if (loading && !refreshing) {
-        return (
-            <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
-                <ActivityIndicator size="large" color={colors.primary[500]} />
-            </View>
-        );
+        return <Loading fullScreen />;
     }
 
     return (
