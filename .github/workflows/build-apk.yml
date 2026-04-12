@@ -44,6 +44,10 @@ jobs:
       contents: write
 
     env:
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      # Opt-in to Node.js 24 for actions to avoid Node 20 deprecation warnings
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
       # Gradle opts for memory efficiency on CI
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Xmx4g"
 
