@@ -2,12 +2,12 @@
   "expo": {
     "name": "Maghz Expo Starter Kit",
     "slug": "maghz-expo-starter-kit",
-    "version": "0.0.14",
+    "version": "0.0.17",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "expotemplate",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -58,9 +58,9 @@
     ],
     "extra": {
       "router": {
-        "origin": "https://example.com"
-      },
-      "appDirectory": "./src/app"
+        "origin": "https://example.com",
+        "sourceDirectory": "./src/app"
+      }
     },
     "eas": {
       "projectId": "82470584-1497-45d5-a488-d3613383bbf1"
