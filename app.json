@@ -2,12 +2,12 @@
   "expo": {
     "name": "Maghz Expo Starter Kit",
     "slug": "maghz-expo-starter-kit",
-    "version": "0.0.17",
+    "version": "0.0.18",
     "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "scheme": "expotemplate",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
