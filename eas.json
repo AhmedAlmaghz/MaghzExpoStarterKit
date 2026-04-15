@@ -1,29 +1,35 @@
 {
-    "cli": {
-        "version": ">= 13.0.0"
+  "cli": {
+    "version": ">= 13.0.0"
+  },
+  "build": {
+    "preview": {
+      "android": {
+        "buildType": "apk"
+      },
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "preview",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://YOUR-PROJECT-ID.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_KEY": "your-anon-key-here",
+        "EXPO_PUBLIC_API_URL": "https://api.example.com"
+      }
     },
-    "build": {
-        "preview": {
-            "android": {
-                "buildType": "apk"
-            },
-            "distribution": "internal",
-            "env": {
-                "EXPO_PUBLIC_APP_ENV": "preview"
-            }
-        },
-        "production": {
-            "distribution": "store",
-            "env": {
-                "EXPO_PUBLIC_APP_ENV": "production"
-            }
-        }
-    },
-    "submit": {
-        "production": {
-            "android": {
-                "track": "internal"
-            }
-        }
+    "production": {
+      "distribution": "store",
+      "env": {
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://YOUR-PROJECT-ID.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_KEY": "your-anon-key-here",
+        "EXPO_PUBLIC_API_URL": "https://api.example.com"
+      }
     }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal"
+      }
+    }
+  }
 }
