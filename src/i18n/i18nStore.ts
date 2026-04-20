@@ -25,6 +25,7 @@ export interface LocaleConfig {
     name: string;
     nativeName: string;
     direction: 'ltr' | 'rtl';
+    flag: string;
 }
 
 /**
@@ -36,12 +37,14 @@ export const LOCALES: Record<LocaleCode, LocaleConfig> = {
         name: 'English',
         nativeName: 'English',
         direction: 'ltr',
+        flag: '🇺🇸',
     },
     ar: {
         code: 'ar',
         name: 'Arabic',
         nativeName: 'العربية',
         direction: 'rtl',
+        flag: '🇸🇦',
     },
 };
 
@@ -79,6 +82,8 @@ interface I18nState {
     localeConfig: LocaleConfig;
     /** Whether the current locale is RTL */
     isRTL: boolean;
+    /** Whether i18n has been initialized */
+    isInitialized: boolean;
 }
 
 /**
@@ -87,6 +92,8 @@ interface I18nState {
 interface I18nActions {
     /** Set locale */
     setLocale: (locale: LocaleCode) => void;
+    /** Toggle between available locales */
+    toggleLocale: () => void;
     /** Translate a key */
     t: (key: string, params?: Record<string, string | number>) => string;
     /** Initialize locale from storage */
@@ -100,15 +107,22 @@ export const useI18nStore = create<I18nState & I18nActions>((set, get) => ({
     locale: 'en',
     localeConfig: LOCALES.en,
     isRTL: false,
+    isInitialized: false,
 
     setLocale: (locale: LocaleCode) => {
         const localeConfig = LOCALES[locale];
         set({
             locale,
             localeConfig,
-            isRTL: !!(localeConfig.direction === 'rtl'),
+            isRTL: localeConfig.direction === 'rtl',
         });
         storage.setItem(STORAGE_KEYS.LOCALE, locale);
+    },
+
+    toggleLocale: () => {
+        const { locale } = get();
+        const newLocale = locale === 'en' ? 'ar' : 'en';
+        get().setLocale(newLocale);
     },
 
     t: (key: string, params?: Record<string, string | number>): string => {
@@ -145,8 +159,18 @@ export const useI18nStore = create<I18nState & I18nActions>((set, get) => ({
             set({
                 locale: savedLocale,
                 localeConfig,
-                isRTL: !!(localeConfig.direction === 'rtl'),
+                isRTL: localeConfig.direction === 'rtl',
+                isInitialized: true,
             });
+        } else {
+            set({ isInitialized: true });
         }
     },
 }));
+
+/**
+ * Get all available locales as array
+ */
+export function getAvailableLocales(): LocaleConfig[] {
+    return Object.values(LOCALES);
+}

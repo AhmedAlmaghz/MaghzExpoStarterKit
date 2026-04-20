@@ -3,6 +3,7 @@
  *
  * Navigation drawer with hierarchical menu items.
  * Supports RTL/LTR and role-based menu visibility.
+ * Theme-aware colors.
  *
  * @module components/layout/SideMenu
  */
@@ -11,11 +12,12 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { useAuth } from '@/auth/hooks/useAuth';
+import { Ionicons } from '@expo/vector-icons';
 
 interface MenuItem {
     key: string;
     label: string;
-    icon: string;
+    icon: keyof typeof Ionicons.glyphMap;
     route: string;
     requiredRole?: 'admin' | 'superadmin';
     children?: MenuItem[];
@@ -25,26 +27,26 @@ interface MenuItem {
  * Menu items configuration
  */
 const getMenuItems = (t: (key: string) => string): MenuItem[] => [
-    { key: 'home', label: t('nav.home'), icon: '🏠', route: '/' },
-    { key: 'dashboard', label: t('nav.dashboard'), icon: '📊', route: '/' },
-    { key: 'profile', label: t('nav.profile'), icon: '👤', route: '/profile' },
-    { key: 'settings', label: t('nav.settings'), icon: '⚙️', route: '/settings' },
-    { key: 'notifications', label: t('nav.notifications'), icon: '🔔', route: '/notifications' },
+    { key: 'home', label: t('nav.home'), icon: 'home', route: '/' },
+    { key: 'dashboard', label: t('nav.dashboard'), icon: 'grid', route: '/dashboard' },
+    { key: 'profile', label: t('nav.profile'), icon: 'person', route: '/profile' },
+    { key: 'settings', label: t('nav.settings'), icon: 'settings', route: '/settings' },
+    { key: 'notifications', label: t('nav.notifications'), icon: 'notifications', route: '/notifications' },
     {
         key: 'admin',
         label: t('nav.admin'),
-        icon: '🛡️',
+        icon: 'shield-checkmark',
         route: '/admin',
         requiredRole: 'admin',
         children: [
-            { key: 'admin-users', label: t('nav.users'), icon: '👥', route: '/admin/users' },
-            { key: 'admin-analytics', label: t('nav.analytics'), icon: '📈', route: '/admin/analytics' },
-            { key: 'admin-content', label: t('nav.content'), icon: '📝', route: '/admin/content' },
-            { key: 'admin-audit', label: t('nav.auditLogs'), icon: '📋', route: '/admin/audit-logs' },
+            { key: 'admin-users', label: t('admin.userManagement') || 'Users', icon: 'people', route: '/admin/users' },
+            { key: 'admin-analytics', label: t('admin.analytics'), icon: 'analytics', route: '/admin/analytics' },
+            { key: 'admin-content', label: t('admin.contentManagement') || 'Content', icon: 'document-text', route: '/admin/content' },
+            { key: 'admin-audit', label: t('admin.auditLogs'), icon: 'list', route: '/admin/audit-logs' },
         ],
     },
-    { key: 'about', label: t('nav.about'), icon: 'ℹ️', route: '/about' },
-    { key: 'help', label: t('nav.help'), icon: '❓', route: '/help' },
+    { key: 'about', label: t('nav.about'), icon: 'information-circle', route: '/about' },
+    { key: 'help', label: t('nav.help'), icon: 'help-circle', route: '/help' },
 ];
 
 interface SideMenuProps {
@@ -77,13 +79,19 @@ export function SideMenu({ isVisible, onItemPress, onClose }: SideMenuProps): Re
         return false;
     };
 
+    const handleLogout = async () => {
+        onClose();
+        await logout();
+    };
+
     return (
-        <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.5)' }]}>
-            <View style={[styles.menu, { backgroundColor: colors.background }]}>
+        <View style={[styles.overlay, { backgroundColor: colors.overlay }]}>
+            <TouchableOpacity style={styles.overlayTouchable} onPress={onClose} activeOpacity={1} />
+            <View style={[styles.menu, { backgroundColor: colors.surface }]}>
                 {/* User info header */}
                 <View style={[styles.header, { backgroundColor: colors.primary[500] }]}>
                     <View style={styles.avatarContainer}>
-                        <View style={styles.avatar}>
+                        <View style={[styles.avatar, { backgroundColor: 'rgba(255,255,255,0.3)' }]}>
                             <Text style={styles.avatarText}>
                                 {user?.displayName?.charAt(0)?.toUpperCase() || '?'}
                             </Text>
@@ -104,7 +112,7 @@ export function SideMenu({ isVisible, onItemPress, onClose }: SideMenuProps): Re
                                     onClose();
                                 }}
                             >
-                                <Text style={styles.menuIcon}>{item.icon}</Text>
+                                <Ionicons name={item.icon} size={20} color={colors.text} style={styles.menuIcon} />
                                 <Text style={[styles.menuLabel, { color: colors.text }]}>{item.label}</Text>
                             </TouchableOpacity>
 
@@ -118,7 +126,7 @@ export function SideMenu({ isVisible, onItemPress, onClose }: SideMenuProps): Re
                                         onClose();
                                     }}
                                 >
-                                    <Text style={styles.menuIcon}>{child.icon}</Text>
+                                    <Ionicons name={child.icon} size={18} color={colors.textSecondary} style={styles.subMenuIcon} />
                                     <Text style={[styles.menuLabel, { color: colors.textSecondary }]}>
                                         {child.label}
                                     </Text>
@@ -131,9 +139,9 @@ export function SideMenu({ isVisible, onItemPress, onClose }: SideMenuProps): Re
                 {/* Logout button */}
                 <TouchableOpacity
                     style={[styles.logoutButton, { borderTopColor: colors.border }]}
-                    onPress={logout}
+                    onPress={handleLogout}
                 >
-                    <Text style={styles.menuIcon}>🚪</Text>
+                    <Ionicons name="log-out" size={20} color={colors.error[500]} style={styles.menuIcon} />
                     <Text style={[styles.menuLabel, { color: colors.error[500] }]}>{t('auth.logout')}</Text>
                 </TouchableOpacity>
             </View>
@@ -149,6 +157,10 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         zIndex: 1000,
+        flexDirection: 'row',
+    },
+    overlayTouchable: {
+        flex: 1,
     },
     menu: {
         width: '80%',
@@ -158,7 +170,7 @@ const styles = StyleSheet.create({
     },
     header: {
         padding: 20,
-        paddingTop: 40,
+        paddingTop: 60,
     },
     avatarContainer: {
         marginBottom: 12,
@@ -167,7 +179,6 @@ const styles = StyleSheet.create({
         width: 56,
         height: 56,
         borderRadius: 28,
-        backgroundColor: 'rgba(255,255,255,0.3)',
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -204,7 +215,9 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
     },
     menuIcon: {
-        fontSize: 20,
+        marginRight: 12,
+    },
+    subMenuIcon: {
         marginRight: 12,
     },
     menuLabel: {

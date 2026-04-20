@@ -2,10 +2,11 @@
  * Input Component
  *
  * Reusable text input with label, error, and icon support.
+ * Theme-aware with proper focus states and colors.
  *
  * @module components/ui/Input
  */
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -59,8 +60,6 @@ interface InputProps {
     onFocus?: () => void;
     /** Blur handler */
     onBlur?: () => void;
-    /** Force dark mode styling */
-    dark?: boolean;
 }
 
 /**
@@ -87,24 +86,36 @@ export function Input({
     inputStyle,
     onFocus,
     onBlur,
-    dark = false,
 }: InputProps): React.ReactElement {
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
+    const [isFocused, setIsFocused] = useState(false);
+
+    const handleFocus = () => {
+        setIsFocused(true);
+        onFocus?.();
+    };
+
+    const handleBlur = () => {
+        setIsFocused(false);
+        onBlur?.();
+    };
 
     const getBorderColor = (): string => {
         if (error) return colors.error[500];
-        if (dark) return '#334155';
+        if (isFocused) return colors.inputFocusBorder;
         return colors.inputBorder;
     };
 
-    const textColor = dark ? '#f8fafc' : colors.text;
-    const bgColor = dark ? '#0f172a' : (disabled ? colors.surfaceVariant : colors.inputBackground);
-    const placeholderColor = dark ? '#64748b' : colors.textTertiary;
+    const getBackgroundColor = (): string => {
+        if (isFocused) return colors.inputFocusBackground;
+        if (disabled) return colors.surfaceVariant;
+        return colors.inputBackground;
+    };
 
     return (
         <View style={[styles.container, containerStyle]}>
             {label && (
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: colors.text }]}>
                     {label}
                 </Text>
             )}
@@ -112,9 +123,10 @@ export function Input({
                 style={[
                     styles.inputWrapper,
                     {
-                        backgroundColor: bgColor,
+                        backgroundColor: getBackgroundColor(),
                         borderColor: getBorderColor(),
                     },
+                    isFocused && styles.inputFocused,
                     error && styles.inputError,
                 ]}
             >
@@ -123,7 +135,7 @@ export function Input({
                     value={value}
                     onChangeText={onChangeText}
                     placeholder={placeholder}
-                    placeholderTextColor={placeholderColor}
+                    placeholderTextColor={colors.textTertiary}
                     secureTextEntry={!!secureTextEntry}
                     editable={!disabled}
                     keyboardType={keyboardType}
@@ -134,14 +146,14 @@ export function Input({
                     maxLength={maxLength}
                     style={[
                         styles.input,
-                        { color: textColor },
+                        { color: colors.text },
                         leftIcon ? styles.inputWithLeftIcon : undefined,
                         rightIcon ? styles.inputWithRightIcon : undefined,
                         multiline ? styles.multilineInput : undefined,
                         inputStyle,
                     ]}
-                    onFocus={onFocus}
-                    onBlur={onBlur}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
                 />
                 {rightIcon && (
                     <TouchableOpacity
@@ -177,6 +189,9 @@ const styles = StyleSheet.create({
         borderWidth: 1.5,
         borderRadius: 12,
         minHeight: 48,
+    },
+    inputFocused: {
+        borderWidth: 2,
     },
     inputError: {
         borderWidth: 2,

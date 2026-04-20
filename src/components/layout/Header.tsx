@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Modal, Pressable, Switch } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme/hooks/useTheme';
 import { useTranslation } from '@/i18n/hooks/useTranslation';
-import { useI18nStore } from '@/i18n/i18nStore';
+import { useI18nStore, LOCALES } from '@/i18n/i18nStore';
+import { useThemeStore, THEME_MODES } from '@/theme/themeStore';
 import { useAuth } from '@/auth/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -27,12 +28,13 @@ export function Header({
     onNotificationsPress,
     onUserPress,
 }: HeaderProps): React.ReactElement {
-    const { colors, mode, toggleMode } = useTheme();
+    const { colors, mode, setMode } = useTheme();
     const { t } = useTranslation();
-    const { locale, setLocale } = useI18nStore();
+    const { locale, setLocale, localeConfig } = useI18nStore();
     const { user, status, logout } = useAuth();
     const router = useRouter();
     const [menuVisible, setMenuVisible] = useState(false);
+    const [settingsExpanded, setSettingsExpanded] = useState(false);
 
     const isAuthenticated = status === 'authenticated';
 
@@ -50,10 +52,18 @@ export function Header({
         }
     };
 
+    const handleThemeChange = (newMode: 'light' | 'dark' | 'system') => {
+        setMode(newMode);
+    };
+
+    const handleLanguageChange = (newLocale: 'en' | 'ar') => {
+        setLocale(newLocale);
+    };
+
     return (
         <SafeAreaView
             edges={['top']}
-            style={{ backgroundColor: colors.surface[50] }}
+            style={{ backgroundColor: colors.headerBackground }}
         >
             <View style={styles.container}>
                 {/* Left: Brand / Title */}
@@ -67,7 +77,7 @@ export function Header({
                                 {title || 'SooqAlyemen'}
                             </Text>
                             <View style={styles.statusRow}>
-                                <View style={styles.statusDot} />
+                                <View style={[styles.statusDot, { backgroundColor: colors.success[500] }]} />
                                 <Text style={[styles.statusText, { color: colors.textSecondary }]}>{t('common.online')}</Text>
                             </View>
                         </View>
@@ -77,28 +87,28 @@ export function Header({
                 {/* Right: Actions */}
                 <View style={styles.rightSection}>
                     {showSearch && (
-                        <TouchableOpacity 
-                            onPress={onSearchPress || (() => router.push('/(main)/search'))} 
+                        <TouchableOpacity
+                            onPress={onSearchPress || (() => router.push('/(main)/search'))}
                             style={styles.actionIcon}
                         >
                             <Ionicons name="search-outline" size={22} color={colors.textSecondary} />
                         </TouchableOpacity>
                     )}
-                    
+
                     {showNotifications && (
-                        <TouchableOpacity 
-                            onPress={onNotificationsPress || (() => router.push('/(main)/notifications'))} 
+                        <TouchableOpacity
+                            onPress={onNotificationsPress || (() => router.push('/(main)/notifications'))}
                             style={styles.actionIcon}
                         >
                             <Ionicons name="notifications-outline" size={22} color={colors.textSecondary} />
-                            <View style={styles.badge} />
+                            <View style={[styles.badge, { backgroundColor: colors.error[500] }]} />
                         </TouchableOpacity>
                     )}
 
                     {showUser && (
                         <TouchableOpacity onPress={toggleMenu} style={styles.profileButton}>
-                            <View style={[styles.avatar, { 
-                                backgroundColor: isAuthenticated ? colors.primary[100] : colors.surface[200],
+                            <View style={[styles.avatar, {
+                                backgroundColor: isAuthenticated ? colors.primary[100] : colors.surfaceVariant,
                                 borderColor: isAuthenticated ? colors.primary[500] : colors.border
                             }]}>
                                 {isAuthenticated ? (
@@ -121,7 +131,7 @@ export function Header({
                     onRequestClose={() => setMenuVisible(false)}
                 >
                     <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
-                        <View style={[styles.menuContainer, { backgroundColor: colors.surface[50], borderColor: colors.border }]}>
+                        <View style={[styles.menuContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                             {isAuthenticated ? (
                                 <View style={styles.menuHeader}>
                                     <Text style={[styles.menuUser, { color: colors.text }]}>{user?.displayName}</Text>
@@ -130,7 +140,7 @@ export function Header({
                             ) : (
                                 <View style={styles.menuHeader}>
                                     <Text style={[styles.menuUser, { color: colors.text }]}>{t('common.welcome') || 'Welcome, Guest'}</Text>
-                                    <TouchableOpacity 
+                                    <TouchableOpacity
                                         onPress={() => { setMenuVisible(false); router.push('/(auth)/login'); }}
                                         style={[styles.smallLoginBtn, { backgroundColor: colors.primary[500] }]}
                                     >
@@ -138,36 +148,84 @@ export function Header({
                                     </TouchableOpacity>
                                 </View>
                             )}
-                            
-                            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
-                            
-                            {/* Theme Toggle */}
-                            <TouchableOpacity style={styles.menuItem} onPress={toggleMode}>
-                                <Ionicons 
-                                    name={mode === 'dark' ? 'sunny-outline' : 'moon-outline'} 
-                                    size={18} 
-                                    color={colors.text} 
-                                />
-                                <Text style={[styles.menuItemText, { color: colors.text }]}>
-                                    {mode === 'dark' ? t('settings.lightMode') : t('settings.darkMode')}
-                                </Text>
-                            </TouchableOpacity>
 
-                            {/* Language Toggle */}
-                            <TouchableOpacity 
-                                style={styles.menuItem} 
-                                onPress={() => setLocale(locale === 'ar' ? 'en' : 'ar')}
+                            <View style={[styles.menuDivider, { backgroundColor: colors.divider }]} />
+
+                            {/* Settings Section */}
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={() => setSettingsExpanded(!settingsExpanded)}
                             >
-                                <Ionicons name="language-outline" size={18} color={colors.text} />
-                                <Text style={[styles.menuItemText, { color: colors.text }]}>
-                                    {locale === 'ar' ? 'English' : 'العربية'}
-                                </Text>
+                                <Ionicons name="settings-outline" size={18} color={colors.text} />
+                                <Text style={[styles.menuItemText, { color: colors.text, flex: 1 }]}>{t('nav.settings')}</Text>
+                                <Ionicons
+                                    name={settingsExpanded ? 'chevron-up' : 'chevron-down'}
+                                    size={16}
+                                    color={colors.textSecondary}
+                                />
                             </TouchableOpacity>
 
-                            <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
+                            {/* Expanded Settings */}
+                            {settingsExpanded && (
+                                <View style={[styles.settingsPanel, { backgroundColor: colors.surfaceVariant }]}>
+                                    {/* Theme Selection */}
+                                    <View style={styles.settingRow}>
+                                        <Text style={[styles.settingLabel, { color: colors.textSecondary }]}>
+                                            {t('settings.theme')}
+                                        </Text>
+                                        <View style={styles.themeButtons}>
+                                            {THEME_MODES.map((theme) => (
+                                                <TouchableOpacity
+                                                    key={theme.mode}
+                                                    style={[
+                                                        styles.themeButton,
+                                                        mode === theme.mode && { backgroundColor: colors.primary[500] }
+                                                    ]}
+                                                    onPress={() => handleThemeChange(theme.mode)}
+                                                >
+                                                    <Ionicons
+                                                        name={theme.icon as any}
+                                                        size={16}
+                                                        color={mode === theme.mode ? colors.textInverse : colors.textSecondary}
+                                                    />
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
 
-                            <TouchableOpacity 
-                                style={styles.menuItem} 
+                                    {/* Language Selection */}
+                                    <View style={styles.settingRow}>
+                                        <Text style={[styles.settingLabel, { color: colors.textSecondary }]}>
+                                            {t('settings.language')}
+                                        </Text>
+                                        <View style={styles.languageButtons}>
+                                            {Object.values(LOCALES).map((lang) => (
+                                                <TouchableOpacity
+                                                    key={lang.code}
+                                                    style={[
+                                                        styles.languageButton,
+                                                        locale === lang.code && { backgroundColor: colors.primary[500] }
+                                                    ]}
+                                                    onPress={() => handleLanguageChange(lang.code)}
+                                                >
+                                                    <Text style={styles.languageFlag}>{lang.flag}</Text>
+                                                    <Text style={[
+                                                        styles.languageText,
+                                                        { color: locale === lang.code ? colors.textInverse : colors.textSecondary }
+                                                    ]}>
+                                                        {lang.nativeName}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    </View>
+                                </View>
+                            )}
+
+                            <View style={[styles.menuDivider, { backgroundColor: colors.divider }]} />
+
+                            <TouchableOpacity
+                                style={styles.menuItem}
                                 onPress={() => { setMenuVisible(false); router.push('/(main)/profile'); }}
                             >
                                 <Ionicons name="person-outline" size={18} color={colors.text} />
@@ -176,16 +234,16 @@ export function Header({
 
                             {isAuthenticated && (
                                 <>
-                                    <TouchableOpacity 
-                                        style={styles.menuItem} 
+                                    <TouchableOpacity
+                                        style={styles.menuItem}
                                         onPress={() => { setMenuVisible(false); router.push('/(main)/dashboard'); }}
                                     >
                                         <Ionicons name="grid-outline" size={18} color={colors.text} />
                                         <Text style={[styles.menuItemText, { color: colors.text }]}>{t('nav.dashboard')}</Text>
                                     </TouchableOpacity>
 
-                                    <View style={[styles.menuDivider, { backgroundColor: colors.border }]} />
-                                    
+                                    <View style={[styles.menuDivider, { backgroundColor: colors.divider }]} />
+
                                     <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
                                         <Ionicons name="log-out-outline" size={18} color={colors.error[500]} />
                                         <Text style={[styles.menuItemText, { color: colors.error[500] }]}>{t('auth.logout')}</Text>
@@ -206,7 +264,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingBottom: 15,
+        paddingBottom: 12,
         height: 60,
     },
     leftSection: {
@@ -238,7 +296,6 @@ const styles = StyleSheet.create({
         width: 6,
         height: 6,
         borderRadius: 3,
-        backgroundColor: '#4ade80',
         marginRight: 6,
     },
     statusText: {
@@ -261,7 +318,6 @@ const styles = StyleSheet.create({
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: '#ef4444',
         borderWidth: 1.5,
         borderColor: 'white',
     },
@@ -275,23 +331,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#fff',
     },
     avatarText: {
         fontSize: 16,
         fontWeight: 'bold',
-    },
-    loginBtn: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        borderRadius: 10,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    loginBtnText: {
-        color: 'white',
-        fontSize: 13,
-        fontWeight: '700',
     },
     modalOverlay: {
         flex: 1,
@@ -313,7 +356,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: Platform.OS === 'ios' ? 100 : 70,
         right: 20,
-        width: 220,
+        width: 260,
         borderRadius: 20,
         borderWidth: 1,
         padding: 8,
@@ -347,6 +390,53 @@ const styles = StyleSheet.create({
     },
     menuItemText: {
         fontSize: 14,
+        fontWeight: '600',
+    },
+    settingsPanel: {
+        marginHorizontal: 8,
+        padding: 12,
+        borderRadius: 12,
+        marginBottom: 8,
+    },
+    settingRow: {
+        marginBottom: 12,
+    },
+    settingLabel: {
+        fontSize: 11,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        marginBottom: 8,
+    },
+    themeButtons: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    themeButton: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0,0,0,0.05)',
+    },
+    languageButtons: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    languageButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 10,
+        backgroundColor: 'rgba(0,0,0,0.05)',
+        gap: 6,
+    },
+    languageFlag: {
+        fontSize: 16,
+    },
+    languageText: {
+        fontSize: 12,
         fontWeight: '600',
     },
 });

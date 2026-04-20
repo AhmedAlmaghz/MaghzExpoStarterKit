@@ -3,6 +3,7 @@
  *
  * Defines the main application navigation structure with bottom tabs.
  * Features dynamic, role-based visibility for administrative panels.
+ * Supports RTL layouts and theme-aware styling.
  *
  * @module app/(main)/_layout
  */
@@ -16,15 +17,15 @@ import { View, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 /**
- * Tab icon component
+ * Tab icon component with active indicator
  */
 function TabIcon({ name, color, focused }: { name: keyof typeof Ionicons.glyphMap; color: string; focused: boolean }) {
     return (
         <View style={styles.tabIconContainer}>
-            <Ionicons 
-                name={focused ? name : (`${name}-outline` as any)} 
-                size={24} 
-                color={color} 
+            <Ionicons
+                name={focused ? name : (`${name}-outline` as any)}
+                size={24}
+                color={color}
             />
             {focused && <View style={[styles.activeIndicator, { backgroundColor: color }]} />}
         </View>
@@ -32,7 +33,7 @@ function TabIcon({ name, color, focused }: { name: keyof typeof Ionicons.glyphMa
 }
 
 export default function MainLayout(): React.ReactElement {
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
     const { t } = useTranslation();
     const { isAdmin } = useAuth();
     const insets = useSafeAreaInsets();
@@ -44,12 +45,12 @@ export default function MainLayout(): React.ReactElement {
             screenOptions={{
                 headerShown: false,
                 tabBarActiveTintColor: colors.primary[500],
-                tabBarInactiveTintColor: colors.textTertiary,
+                tabBarInactiveTintColor: colors.tabInactive,
                 tabBarStyle: [
                     styles.tabBar,
                     {
-                        backgroundColor: colors.surface[50],
-                        borderTopColor: 'rgba(0,0,0,0.05)',
+                        backgroundColor: colors.tabBackground,
+                        borderTopColor: colors.border,
                         height: tabBarHeight,
                         paddingBottom: Math.max(insets.bottom, 12),
                     },

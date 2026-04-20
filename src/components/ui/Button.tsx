@@ -2,6 +2,7 @@
  * Button Component
  *
  * Reusable button with multiple variants, sizes, and loading state.
+ * Theme-aware with proper color transitions.
  *
  * @module components/ui/Button
  */
@@ -87,12 +88,12 @@ export function Button({
     const getTextColor = (): string => {
         if (disabled) return colors.textInverse;
         switch (variant) {
-            case 'primary': return '#ffffff';
-            case 'secondary': return '#ffffff';
+            case 'primary': return colors.textInverse;
+            case 'secondary': return colors.textInverse;
             case 'outline': return colors.primary[500];
             case 'ghost': return colors.primary[500];
-            case 'danger': return '#ffffff';
-            default: return '#ffffff';
+            case 'danger': return colors.textInverse;
+            default: return colors.textInverse;
         }
     };
 
@@ -100,6 +101,7 @@ export function Button({
         if (disabled) return colors.textTertiary;
         switch (variant) {
             case 'outline': return colors.primary[500];
+            case 'ghost': return 'transparent';
             default: return 'transparent';
         }
     };
@@ -126,6 +128,7 @@ export function Button({
         <TouchableOpacity
             onPress={onPress}
             disabled={disabled || loading}
+            activeOpacity={0.8}
             style={[
                 styles.button,
                 {

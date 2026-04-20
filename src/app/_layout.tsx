@@ -12,40 +12,45 @@
  * @see https://docs.expo.dev/router/create-layouts/
  */
 // import '../global.css'; // Enable when NativeWind metro config is set up
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { ThemeProvider } from '@/theme/ThemeProvider';
+import { ThemeProvider, useThemeStore } from '@/theme';
 import { useTheme } from '@/theme/hooks/useTheme';
-import { useThemeStore } from '@/theme/themeStore';
 import { I18nManager } from 'react-native';
 import { useI18nStore } from '@/i18n/i18nStore';
 import { useAuthStore } from '@/auth/authStore';
 import { sessionService } from '@/auth/services/sessionService';
 import { FloatingHomeButton } from '@/components/ui/FloatingHomeButton';
 import { WhatsAppFAB } from '@/components/ui/WhatsAppFAB';
-import { useTranslation } from '@/i18n/hooks/useTranslation';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 function RootLayoutNav(): React.ReactElement {
-    const { isDarkMode } = useTheme();
+    const { isDarkMode, colors } = useTheme();
     const { locale, isRTL } = useI18nStore();
 
     return (
         <View style={{ flex: 1 }} key={`${locale}-${isRTL}`}>
-            <StatusBar style={isDarkMode ? 'light' : 'dark'} translucent={true} />
+            <StatusBar
+                style={isDarkMode ? 'light' : 'dark'}
+                translucent={true}
+            />
             <Stack
                 screenOptions={{
                     headerShown: true,
                     headerStyle: {
-                        backgroundColor: isDarkMode ? '#1e293b' : '#ffffff',
+                        backgroundColor: colors.headerBackground,
                     },
-                    headerTintColor: isDarkMode ? '#f8fafc' : '#0f172a',
+                    headerTintColor: colors.text,
                     headerShadowVisible: false,
-                    contentStyle: {
-                        backgroundColor: isDarkMode ? '#0f172a' : '#f8fafc',
+                    headerTitleStyle: {
+                        fontWeight: '600',
                     },
+                    contentStyle: {
+                        backgroundColor: colors.background,
+                    },
+                    animation: 'fade',
                 }}
             >
                 <Stack.Screen name="(main)" options={{ headerShown: false }} />
@@ -129,7 +134,7 @@ function AppInitializer(): React.ReactElement | null {
         };
 
         // Start initialization after a small delay to let the UI render first
-        const timer = setTimeout(initialize, 100);
+        const timer = setTimeout(initialize, 50);
 
         return () => {
             isMounted = false;

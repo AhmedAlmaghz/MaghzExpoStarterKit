@@ -2,11 +2,12 @@
  * Card Component
  *
  * Reusable card container with optional header and footer.
+ * Uses theme-aware colors with proper shadows and borders.
  *
  * @module components/ui/Card
  */
 import React from 'react';
-import { View, Text, StyleSheet, type ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, type ViewStyle, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/theme/hooks/useTheme';
 
 interface CardProps {
@@ -41,30 +42,10 @@ export function Card({
     onPress,
     padding = 16,
 }: CardProps): React.ReactElement {
-    const { colors } = useTheme();
+    const { colors, isDarkMode } = useTheme();
 
-    const Wrapper = onPress ? View : View;
-
-    return (
-        <Wrapper
-            style={[
-                styles.card,
-                {
-                    backgroundColor: colors.card,
-                    borderColor: colors.border,
-                    padding,
-                },
-                !!elevated && {
-                    shadowColor: colors.shadow,
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 4,
-                },
-                style,
-            ]}
-            onTouchEnd={onPress}
-        >
+    const cardContent = (
+        <>
             {(title || subtitle) && (
                 <View style={styles.header}>
                     {title && (
@@ -85,7 +66,71 @@ export function Card({
                     {footer}
                 </View>
             )}
-        </Wrapper>
+        </>
+    );
+
+    if (onPress) {
+        return (
+            <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.7}
+                style={[
+                    styles.card,
+                    {
+                        backgroundColor: colors.card,
+                        borderColor: colors.border,
+                        padding,
+                    },
+                    elevated && !isDarkMode && {
+                        shadowColor: colors.shadow,
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.08,
+                        shadowRadius: 12,
+                        elevation: 3,
+                    },
+                    elevated && isDarkMode && {
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 12,
+                        elevation: 3,
+                    },
+                    style,
+                ]}
+            >
+                {cardContent}
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <View
+            style={[
+                styles.card,
+                {
+                    backgroundColor: colors.card,
+                    borderColor: colors.border,
+                    padding,
+                },
+                elevated && !isDarkMode && {
+                    shadowColor: colors.shadow,
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.08,
+                    shadowRadius: 12,
+                    elevation: 3,
+                },
+                elevated && isDarkMode && {
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 12,
+                    elevation: 3,
+                },
+                style,
+            ]}
+        >
+            {cardContent}
+        </View>
     );
 }
 
